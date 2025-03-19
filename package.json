@@ -39,6 +39,7 @@
   "dependencies": {
     "element-plus": "^2.9.6",
     "markdown-it": "^14.1.0",
-    "openai": "^4.87.4"
+    "openai": "^4.87.4",
+    "vue-router": "^4.5.0"
   }
 }

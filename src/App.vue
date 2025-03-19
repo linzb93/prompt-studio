@@ -3,5 +3,5 @@ import PromptDebugger from './components/PromptDebugger.vue';
 </script>
 
 <template>
-    <PromptDebugger />
+    <router-view />
 </template>

@@ -45,7 +45,7 @@ let win: BrowserWindow | null = null;
 ipcMain.handle('submit-prompt', async (event, formData) => {
     try {
         const controller = new Controller();
-        const result = await controller.handlePrompt(formData);
+        const result = await controller.handlePrompt(formData, event);
         return result;
     } catch (error) {
         console.error(error);

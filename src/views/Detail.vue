@@ -41,13 +41,24 @@ const md = new MarkdownIt();
 
 const onSubmit = async () => {
     try {
-        const rawResponse = await window.ipcRenderer.invoke('submit-prompt', JSON.stringify(form.value));
-        response.value = md.render(rawResponse.data);
+        response.value = '';
+        await window.ipcRenderer.invoke('submit-prompt', JSON.stringify(form.value));
     } catch (error) {
         ElMessage.error('Error submitting prompt');
         console.error(error);
     }
 };
+
+let accumulatedMarkdown = '';
+
+window.ipcRenderer.on('ai-response-chunk', (event, { data }) => {
+    accumulatedMarkdown += data;
+    response.value = md.render(accumulatedMarkdown);
+});
+
+window.ipcRenderer.on('ai-response-end', () => {
+    ElMessage.success('Prompt completed');
+});
 </script>
 
 <style scoped>

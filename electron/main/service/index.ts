@@ -11,17 +11,17 @@ class Service {
         });
     }
 
-    async callAIModel(formData: FormData) {
+    async callAIModel(formData: FormData, event) {
         try {
-            const result = await this._callExternalAIModel(formData);
-            return result;
+            const result = await this._callExternalAIModel(formData, event);
+            return result.data;
         } catch (error) {
             console.error(error);
             throw error;
         }
     }
 
-    async _callExternalAIModel(formData: FormData) {
+    async _callExternalAIModel(formData: FormData, event) {
         this.openai = new OpenAI({
             apiKey: formData.apiKey,
             baseURL: formData.modelUrl,
@@ -30,11 +30,16 @@ class Service {
         const completion = await this.openai.chat.completions.create({
             messages: [{ role: 'user', content: formData.prompt }],
             model: formData.modelName,
+            stream: true,
         });
+        for await (const chunk of completion) {
+            event.sender.send('ai-response-chunk', { status: 'success', data: chunk.choices[0]?.delta?.content || '' });
+        }
+        event.sender.send('ai-response-end', { status: 'success' });
 
         return {
             success: true,
-            data: completion.choices[0].message.content,
+            data: '',
         };
     }
 }
