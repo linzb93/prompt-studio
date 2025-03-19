@@ -27,19 +27,22 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
+import MarkdownIt from 'markdown-it';
 
 const form = ref({
     title: '',
-    modelUrl: '',
-    modelName: '',
+    modelUrl: 'https://api.siliconflow.cn',
+    modelName: 'deepseek-ai/DeepSeek-V3',
     apiKey: '',
-    prompt: '',
+    prompt: '请介绍福州市，用尽量简洁的语言，控制在50个字以内。',
 });
 const response = ref('');
+const md = new MarkdownIt();
 
 const onSubmit = async () => {
     try {
-        response.value = await window.ipcRenderer.invoke('submit-prompt', form.value);
+        const rawResponse = await window.ipcRenderer.invoke('submit-prompt', JSON.stringify(form.value));
+        response.value = md.render(rawResponse.data);
     } catch (error) {
         ElMessage.error('Error submitting prompt');
         console.error(error);

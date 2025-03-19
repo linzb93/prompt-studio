@@ -1,4 +1,6 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import Controller from './controller';
+
 import { release } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
