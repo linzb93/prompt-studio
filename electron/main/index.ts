@@ -63,6 +63,7 @@ async function createWindow() {
         icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
         webPreferences: {
             preload,
+            spellcheck: false,
             // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
             // nodeIntegration: true,
 

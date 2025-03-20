@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { FormData } from '../types';
+import { saveModel } from './database';
 
 class Service {
     private openai: OpenAI;
@@ -14,6 +15,7 @@ class Service {
     async callAIModel(formData: FormData, event) {
         try {
             const result = await this._callExternalAIModel(formData, event);
+            saveModel(formData);
             return result.data;
         } catch (error) {
             console.error(error);
