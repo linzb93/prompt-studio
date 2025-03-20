@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>删除确认 - Prompt Studio</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body>
+        <!-- 删除确认弹窗 -->
+        <div class="fixed inset-0 bg-black bg-opacity-50">
+            <div
+                class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 w-96"
+            >
+                <div class="text-center mb-6">
+                    <svg class="mx-auto h-12 w-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        ></path>
+                    </svg>
+                    <h3 class="mt-4 text-lg font-semibold text-gray-900">确认删除</h3>
+                    <p class="mt-2 text-sm text-gray-500">确定要删除这个主题吗？此操作无法撤销。</p>
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">取消</button>
+                    <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">删除</button>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

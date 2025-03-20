@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Prompt Studio 原型</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {
+                background-color: #f5f5f5;
+            }
+            .prototype-container iframe {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                background: white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+        </style>
+    </head>
+    <body class="p-8">
+        <h1 class="text-3xl font-bold mb-8 text-center text-gray-800">Prompt Studio 界面原型</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 prototype-container">
+            <!-- 主页 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">主页（主题列表）</h2>
+                <iframe src="home.html" class="w-full h-[600px]"></iframe>
+            </div>
+
+            <!-- 删除 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">删除主题</h2>
+                <iframe src="delete-confirm.html" class="w-full h-[600px]"></iframe>
+            </div>
+
+            <!-- 详情页 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">主题详情页</h2>
+                <iframe src="detail.html" class="w-full h-[600px]"></iframe>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">历史记录</h2>
+                <iframe src="history.html" class="w-full h-[600px]"></iframe>
+                <iframe src="delete-confirm.html" class="hidden"></iframe>
+            </div>
+
+            <!-- 模型管理 -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">模型管理</h2>
+                <iframe src="model.html" class="w-full h-[600px]"></iframe>
+            </div>
+            <div class="space-y-4">
+                <h2 class="text-xl font-semibold text-gray-700">编辑模型</h2>
+                <iframe src="model-form.html" class="w-full h-[600px]"></iframe>
+            </div>
+        </div>
+    </body>
+</html>

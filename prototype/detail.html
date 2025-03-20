@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>主题详情 - Prompt Studio</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-50 p-6">
+        <div class="flex gap-6">
+            <!-- 左侧编辑区域 -->
+            <div class="w-1/2">
+                <!-- 基本信息区 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <div class="mb-6">
+                        <input
+                            type="text"
+                            placeholder="请输入标题"
+                            class="text-xl font-semibold w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+
+                    <!-- 模型配置区 -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-6">
+                        <div class="flex-1">
+                            <div class="text-sm text-gray-500 mb-1">当前模型</div>
+                            <div class="font-medium">DeepSeek-V3</div>
+                        </div>
+                        <button class="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg">选择模型</button>
+                    </div>
+                </div>
+
+                <!-- 提示词编辑区 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">系统提示词</label>
+                        <textarea
+                            class="w-full h-32 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="请输入系统提示词..."
+                        ></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">用户提示词</label>
+                        <textarea
+                            class="w-full h-32 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="请输入用户提示词..."
+                        ></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">图片上传</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <svg
+                                class="mx-auto h-12 w-12 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                ></path>
+                            </svg>
+                            <p class="mt-1 text-sm text-gray-500">拖拽文件到此处，或点击上传</p>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center"
+                    >
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"
+                            ></path>
+                        </svg>
+                        提交
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧响应区域 -->
+            <div class="w-1/2">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">AI响应</h2>
+                    </div>
+
+                    <!-- 响应显示区域 -->
+                    <div class="border rounded-lg p-4 bg-gray-50 min-h-[600px]">
+                        <div class="text-gray-500 mt-4">AI响应将显示在这里...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
