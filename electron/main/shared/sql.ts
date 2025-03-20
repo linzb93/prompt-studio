@@ -3,15 +3,33 @@ import path from 'path';
 import { app } from 'electron';
 
 interface Model {
-    title: string;
+    id: number;
     modelUrl: string;
     modelName: string;
     apiKey: string;
-    prompt: string;
+}
+
+export interface DebugRecord {
+    id: number;
+    moduleId: string;
+    createTime: string;
+    data: any;
+}
+
+/**
+ * 调试模块的数据结构
+ * @property id 模块的唯一标识符
+ * @property name 模块的名称
+ */
+export interface DebugModule {
+    id: number;
+    name: string;
+    createTime: string;
 }
 
 export interface StoredDataType {
     models: Model[];
+    debugModules: DebugModule[];
 }
 
 /**

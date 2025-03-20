@@ -1,23 +1,29 @@
 <template>
     <ModelFormDialog v-model:visible="visible" @submit="handleModelSubmit" />
-    <el-form :model="form" label-width="120px">
-        <el-form-item label="标题">
-            <el-input v-model="form.title" />
-        </el-form-item>
+    <el-row :gutter="20">
+        <el-col :span="12">
+            <el-form :model="form" label-width="120px">
+                <el-form-item label="标题">
+                    <el-input v-model="form.title" />
+                </el-form-item>
 
-        <el-form-item label="模型">
-            <el-button type="primary" @click="visible = true">添加</el-button>
-        </el-form-item>
-        <el-form-item label="Prompt">
-            <el-input v-model="form.prompt" type="textarea" />
-        </el-form-item>
-        <el-form-item>
-            <el-button type="primary" @click="onSubmit">提交</el-button>
-        </el-form-item>
-    </el-form>
-    <el-card v-if="response" class="response-card">
-        <div v-html="response" />
-    </el-card>
+                <el-form-item label="模型">
+                    <el-button type="primary" @click="visible = true">添加</el-button>
+                </el-form-item>
+                <el-form-item label="Prompt">
+                    <el-input v-model="form.prompt" type="textarea" />
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="onSubmit">提交</el-button>
+                </el-form-item>
+            </el-form>
+        </el-col>
+        <el-col :span="12">
+            <el-card v-if="response" class="response-card">
+                <div v-html="response" />
+            </el-card>
+        </el-col>
+    </el-row>
 </template>
 
 <script lang="ts" setup>
@@ -64,5 +70,6 @@ window.ipcRenderer.on('ai-response-end', () => {
 <style scoped>
 .response-card {
     margin-top: 20px;
+    text-align: left;
 }
 </style>
