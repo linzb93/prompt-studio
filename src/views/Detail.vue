@@ -1,22 +1,18 @@
 <template>
+    <ModelFormDialog v-model:visible="visible" @submit="handleModelSubmit" />
     <el-form :model="form" label-width="120px">
         <el-form-item label="标题">
             <el-input v-model="form.title" />
         </el-form-item>
-        <el-form-item label="AI模型地址">
-            <el-input v-model="form.modelUrl" />
-        </el-form-item>
-        <el-form-item label="AI模型名称">
-            <el-input v-model="form.modelName" />
-        </el-form-item>
-        <el-form-item label="API Key">
-            <el-input v-model="form.apiKey" type="password" />
+
+        <el-form-item label="模型">
+            <el-button type="primary" @click="visible = true">添加</el-button>
         </el-form-item>
         <el-form-item label="Prompt">
             <el-input v-model="form.prompt" type="textarea" />
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" @click="onSubmit">Submit</el-button>
+            <el-button type="primary" @click="onSubmit">提交</el-button>
         </el-form-item>
     </el-form>
     <el-card v-if="response" class="response-card">
@@ -28,20 +24,24 @@
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import MarkdownIt from 'markdown-it';
+import ModelFormDialog from '../components/ModelFormDialog.vue';
 
+const visible = ref(false);
 const form = ref({
     title: '',
-    modelUrl: 'https://api.siliconflow.cn',
-    modelName: 'deepseek-ai/DeepSeek-V3',
-    apiKey: '',
     prompt: '请介绍福州市，用尽量简洁的语言，控制在50个字以内。',
 });
+
+const handleModelSubmit = (modelData: any) => {
+    form.value = { ...form.value, ...modelData };
+};
 const response = ref('');
 const md = new MarkdownIt();
 
 const onSubmit = async () => {
     try {
         response.value = '';
+        accumulatedMarkdown = '';
         await window.ipcRenderer.invoke('submit-prompt', JSON.stringify(form.value));
     } catch (error) {
         ElMessage.error('Error submitting prompt');
