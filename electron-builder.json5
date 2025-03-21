@@ -3,9 +3,9 @@
  */
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "PromptStudio",
   "asar": true,
-  "productName": "YourAppName",
+  "productName": "Prompt Studio",
   "directories": {
     "output": "release/${version}"
   },
