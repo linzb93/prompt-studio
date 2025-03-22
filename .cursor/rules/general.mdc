@@ -1,7 +1,0 @@
-# 技术栈
-本项目渲染进程用的是Vue3 + element plus
-
-# 其他要求
-1. 主进程入口文件在 electron/main/router.ts。这是所有路由的入口。每个路由处理程序通过引入对应Controller类处理，每个Controller有对应的Service类。在Service类完成主业务。每个模块在electron/main/modules目录下新建一个文件夹，添加对应的Controller类和Service类文件。
-2. 添加接口的时候，参考docs目录下的模块文件。
-3. 添加界面的时候，参考原型目录下的页面。
