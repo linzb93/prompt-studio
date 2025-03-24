@@ -30,21 +30,6 @@
                 <div class="create-time">创建时间：{{ theme.createTime }}</div>
             </el-card>
         </div>
-
-        <!-- 新建/编辑主题对话框 -->
-        <el-dialog v-model="dialogVisible" :title="dialogType === 'create' ? '新建主题' : '编辑主题'" width="30%">
-            <el-form :model="form" label-width="80px">
-                <el-form-item label="主题名称" required>
-                    <el-input v-model="form.name" placeholder="请输入主题名称" />
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取消</el-button>
-                    <el-button type="primary" @click="handleSubmit">确定</el-button>
-                </span>
-            </template>
-        </el-dialog>
     </div>
 </template>
 
@@ -67,17 +52,6 @@ const router = useRouter();
 const keyword = ref('');
 const themes = ref<Theme[]>([]);
 
-// 对话框控制
-const dialogVisible = ref(false);
-const dialogType = ref<'create' | 'edit'>('create');
-const currentTheme = ref<Theme | null>(null);
-
-// 表单数据
-const form = ref({
-    id: 0,
-    name: '',
-});
-
 // 获取主题列表
 const getThemes = async () => {
     try {
@@ -98,16 +72,12 @@ const handleSearch = () => {
 
 // 新建主题
 const handleCreate = () => {
-    dialogType.value = 'create';
-    form.value = { id: 0, name: '' };
-    dialogVisible.value = true;
+    router.push('/theme/create');
 };
 
 // 编辑主题
 const handleEdit = (theme: Theme) => {
-    dialogType.value = 'edit';
-    form.value = { id: theme.id, name: theme.name };
-    dialogVisible.value = true;
+    router.push(`/theme/${theme.id}`);
 };
 
 // 查看历史
@@ -135,28 +105,6 @@ const handleDelete = async (theme: Theme) => {
         if (error !== 'cancel') {
             ElMessage.error('删除失败');
         }
-    }
-};
-
-// 提交表单
-const handleSubmit = async () => {
-    if (!form.value.name.trim()) {
-        ElMessage.warning('请输入主题名称');
-        return;
-    }
-
-    try {
-        if (dialogType.value === 'create') {
-            await request('theme-create', { name: form.value.name });
-            ElMessage.success('创建成功');
-        } else {
-            await request('theme-update', { id: form.value.id, name: form.value.name });
-            ElMessage.success('更新成功');
-        }
-        dialogVisible.value = false;
-        getThemes();
-    } catch (error) {
-        ElMessage.error(dialogType.value === 'create' ? '创建失败' : '更新失败');
     }
 };
 

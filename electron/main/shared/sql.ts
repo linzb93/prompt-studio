@@ -23,7 +23,6 @@ export default async function sql<R>(callback: (data: StoredDataType) => R) {
         }
         const storedData = await fs.readJSON(filePath);
         const result = await callback(storedData);
-        console.log(result);
         await fs.writeJSON(filePath, storedData, { spaces: 2 });
         return result;
     } catch (error) {
