@@ -1,11 +1,12 @@
 import { app, BrowserWindow } from 'electron';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 // import init from '../../providers/init';
 // import unhandled from 'electron-unhandled';
 // import { __dirname } from '../../enums/index.enum';
-// import { setWindow } from '../window/window.service';
-// import createMenu from '../menu/menu.service';
-// import createContextMenu from '../menu/contextMenu.service';
+import { setWindow } from '../window/window.service';
+import createMenu from '../menu/menu.service';
+import createContextMenu from '../menu/contextMenu.service';
 
 interface IAppOptions {
     router: Function;
@@ -14,13 +15,14 @@ export function createApp(options: IAppOptions) {
     app.whenReady().then(() => {
         // init();
         createWindow();
-        // setWindow(win);
-        // createMenu(win);
-        // createContextMenu(win);
+        setWindow(win);
+        createMenu(win);
+        createContextMenu(win);
         options.router();
     });
     setting();
 }
+const __dirname = dirname(fileURLToPath(import.meta.url));
 let win: BrowserWindow | null = null;
 const APP_ROOT = join(__dirname, '../..');
 export const MAIN_DIST = join(APP_ROOT, 'dist-electron');
