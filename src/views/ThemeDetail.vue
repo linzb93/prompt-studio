@@ -62,6 +62,7 @@
             </el-card>
         </el-main>
     </el-container>
+    <ModelDialog v-model="modelDialogVisible" @select="handleModelSelect" />
 </template>
 
 <script setup lang="ts">
@@ -69,6 +70,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { Upload, Position } from '@element-plus/icons-vue';
 import request from '@/shared/request';
+import ModelDialog from '@/components/ModelDialog.vue';
 
 const route = useRoute();
 const isCreate = route.name === 'theme-create';
@@ -94,6 +96,7 @@ const themeDetail = ref<ThemeDetail>({
 
 const selectedModelName = ref('未选择');
 const aiResponse = ref('');
+const modelDialogVisible = ref(false);
 
 onMounted(async () => {
     if (!isCreate) {
@@ -105,7 +108,12 @@ onMounted(async () => {
 });
 
 const handleSelectModel = () => {
-    // TODO: 实现模型选择功能
+    modelDialogVisible.value = true;
+};
+
+const handleModelSelect = (model: any) => {
+    themeDetail.value.modelId = model.id;
+    selectedModelName.value = model.name;
 };
 
 const handleSubmit = async () => {

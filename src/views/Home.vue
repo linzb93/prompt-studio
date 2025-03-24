@@ -30,6 +30,8 @@
                 <div class="create-time">创建时间：{{ theme.createTime }}</div>
             </el-card>
         </div>
+        <!-- 历史记录弹窗 -->
+        <HistoryDialog v-model="historyDialogVisible" :theme-id="currentThemeId" />
     </div>
 </template>
 
@@ -39,6 +41,7 @@ import { useRouter } from 'vue-router';
 import { Search, Plus, Edit, Timer, Delete } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
+import HistoryDialog from '@/components/HistoryDialog.vue';
 
 interface Theme {
     id: number;
@@ -51,6 +54,10 @@ const router = useRouter();
 // 搜索和分页
 const keyword = ref('');
 const themes = ref<Theme[]>([]);
+
+// 历史记录弹窗
+const historyDialogVisible = ref(false);
+const currentThemeId = ref<number>(0);
 
 // 获取主题列表
 const getThemes = async () => {
@@ -82,7 +89,8 @@ const handleEdit = (theme: Theme) => {
 
 // 查看历史
 const handleHistory = (theme: Theme) => {
-    router.push(`/history/${theme.id}`);
+    currentThemeId.value = theme.id;
+    historyDialogVisible.value = true;
 };
 
 // 查看详情
