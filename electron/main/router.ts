@@ -51,9 +51,6 @@ export default () => {
     });
 
     // 历史记录相关接口
-    ipcMain.handle('history-create', (evt, data: string) => {
-        return response(async () => await historyController.create(data));
-    });
 
     ipcMain.handle('history-update', (evt, data: string) => {
         return response(async () => await historyController.update(data));

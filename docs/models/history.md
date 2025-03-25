@@ -61,16 +61,6 @@ interface HistoryItem {
 
 # 历史记录管理接口
 
-接口名称：history-create
-接口含义：创建一条新的历史记录
-入参：Omit<HistoryItem, 'id' | 'createTime'>
-出参：无
-
-接口名称：history-update
-接口含义：更新指定历史记录的内容
-入参：Pick<HistoryItem, 'id'> & Partial<Omit<HistoryItem, 'id' | 'createTime'>>
-出参：无
-
 接口名称：history-delete
 接口含义：删除指定的历史记录
 入参：Pick<HistoryItem, 'id'>

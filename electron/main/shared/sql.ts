@@ -1,13 +1,30 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { root } from '../enums/index.enum';
-import { app } from 'electron';
 
 export interface StoredDataType {
-    themes?: {
+    themes: {
         id: number;
         name: string;
         createTime: string;
+        contentId: number;
+    }[];
+    historyList: {
+        id: number;
+        themeId: number;
+        modelId: number;
+        title: string;
+        userPrompt: string;
+        systemPrompt: string;
+        aiResponse: string;
+        createTime: string;
+    }[];
+    models: {
+        id: number;
+        name: string;
+        createTime: string;
+        url: string;
+        apiKey: string;
     }[];
 }
 

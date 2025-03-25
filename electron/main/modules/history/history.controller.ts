@@ -15,10 +15,6 @@ export class HistoryController {
         return this.historyService.getDetail(params.id);
     }
 
-    async create(params: any) {
-        await this.historyService.create(params);
-    }
-
     async update(params: any) {
         await this.historyService.update(params);
     }
