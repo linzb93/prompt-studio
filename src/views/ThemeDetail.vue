@@ -1,35 +1,33 @@
 <template>
     <el-container class="h-100vh">
         <el-aside width="50%" class="p-4">
+            <!-- 返回按钮 -->
+            <el-button @click="handleBack" class="back-button">
+                <el-icon><Back /></el-icon>返回首页
+            </el-button>
             <el-space direction="vertical" fill class="w-100">
                 <!-- 基本信息区 -->
                 <el-card>
-                    <el-form>
-                        <el-form-item>
+                    <el-form label-suffix="：">
+                        <el-form-item label="标题">
                             <el-input v-model="themeDetail.name" placeholder="请输入标题" size="large" />
                         </el-form-item>
-                        <el-form-item>
-                            <el-row align="middle" justify="space-between" class="p-4">
-                                <el-col>
-                                    <el-text class="text-secondary mr-4">当前模型</el-text>
-                                    <el-text>{{ selectedModelName }}</el-text>
-                                </el-col>
-                                <el-col :span="4">
-                                    <el-button type="primary" link @click="handleSelectModel">选择模型</el-button>
-                                </el-col>
-                            </el-row>
+                        <el-form-item label="当前模型">
+                            <div class="flexitem-1">{{ selectedModelName }}</div>
+                            <el-button type="primary" link @click="handleSelectModel">选择模型</el-button>
                         </el-form-item>
                     </el-form>
                 </el-card>
 
                 <!-- 提示词编辑区 -->
                 <el-card>
-                    <el-form>
+                    <el-form label-suffix="：">
                         <el-form-item label="系统提示词">
                             <el-input
                                 v-model="themeDetail.systemPrompt"
                                 type="textarea"
                                 :rows="4"
+                                resize="none"
                                 placeholder="请输入系统提示词..."
                             />
                         </el-form-item>
@@ -38,6 +36,7 @@
                                 v-model="themeDetail.userPrompt"
                                 type="textarea"
                                 :rows="4"
+                                resize="none"
                                 placeholder="请输入用户提示词..."
                             />
                         </el-form-item>
@@ -52,13 +51,13 @@
         </el-aside>
 
         <!-- 右侧响应区域 -->
-        <el-main class="p-4">
+        <el-main class="p-4 mb30">
             <el-card>
                 <template #header>
                     <span>AI响应</span>
                 </template>
-                <el-empty v-if="!aiResponse" description="AI响应将显示在这里..." />
-                <div v-else>{{ aiResponse }}</div>
+                <el-empty v-if="aiResponse === ''" description="AI响应将显示在这里..." />
+                <div v-else v-html="aiResponse"></div>
             </el-card>
         </el-main>
     </el-container>
@@ -67,9 +66,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { Upload, Position } from '@element-plus/icons-vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Upload, Position, Back } from '@element-plus/icons-vue';
+import { handleMainPost } from '@/shared/util';
 import request from '@/shared/request';
+import markdown from 'markdown-it';
 import ModelDialog from '@/components/ModelDialog.vue';
 
 const route = useRoute();
@@ -117,8 +118,21 @@ const handleModelSelect = (model: any) => {
 };
 
 const handleSubmit = async () => {
+    aiResponse.value = '';
+    tempAiText = '';
     await request('theme-update', themeDetail.value);
-    // TODO: 调用AI生成响应
+};
+const md = markdown();
+let tempAiText = '';
+handleMainPost('theme-chat-chunk', (content: string) => {
+    tempAiText += content;
+    aiResponse.value = md.render(tempAiText);
+});
+
+const router = useRouter();
+
+const handleBack = () => {
+    router.push('/');
 };
 </script>
 
@@ -137,5 +151,13 @@ const handleSubmit = async () => {
 
 .mr-2 {
     margin-right: 8px;
+}
+
+.back-button {
+    width: 100px;
+    padding: 8px 16px;
+    font-size: 14px;
+    z-index: 1;
+    margin-bottom: 20px;
 }
 </style>

@@ -22,6 +22,7 @@ export interface StoredDataType {
     models: {
         id: number;
         name: string;
+        model: string;
         createTime: string;
         url: string;
         apiKey: string;

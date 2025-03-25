@@ -1,15 +1,17 @@
 import sql, { StoredDataType } from '../../shared/sql';
 import dayjs from 'dayjs';
 import { HistoryService } from '../history/history.service';
-
+import { ThemeOpenAI } from './theme.openai';
+import { type IpcMainInvokeEvent } from 'electron';
 type Theme = StoredDataType['themes'][number];
 type HistoryItem = StoredDataType['historyList'][number];
 
 export class ThemeService {
     private historyService = new HistoryService();
+    private themeOpenAI = new ThemeOpenAI();
 
     async create(
-        data: Pick<Theme, 'name'> & Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt' | 'aiResponse'>
+        data: Pick<Theme, 'name'> & Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt'>
     ): Promise<void> {
         const themes = await sql((db) => db.themes || []);
         const id = themes.length > 0 ? Math.max(...themes.map((t) => t.id)) + 1 : 1;
@@ -18,20 +20,19 @@ export class ThemeService {
         await sql((db) => {
             db.themes = [...(db.themes || []), theme];
         });
-
+        const aiResponse = await this.themeOpenAI.chat(data.modelId, data.systemPrompt, data.userPrompt);
         await this.historyService.create({
             themeId: id,
             modelId: data.modelId,
             title: data.name,
             systemPrompt: data.systemPrompt,
             userPrompt: data.userPrompt,
-            aiResponse: data.aiResponse,
+            aiResponse: aiResponse,
         });
     }
 
     async update(
-        data: Pick<Theme, 'id' | 'name'> &
-            Partial<Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt' | 'aiResponse'>>
+        data: Pick<Theme, 'id' | 'name'> & Partial<Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt'>>
     ): Promise<void> {
         await sql((db) => {
             const themes = db.themes || [];
@@ -41,14 +42,14 @@ export class ThemeService {
                 db.themes = themes;
             }
         });
-
+        const aiResponse = await this.themeOpenAI.chat(data.modelId, data.systemPrompt, data.userPrompt);
         await this.historyService.create({
             themeId: data.id,
             modelId: data.modelId,
             title: data.name,
             systemPrompt: data.systemPrompt,
             userPrompt: data.userPrompt,
-            aiResponse: data.aiResponse,
+            aiResponse: aiResponse,
         });
     }
 

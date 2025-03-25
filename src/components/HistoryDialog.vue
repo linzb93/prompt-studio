@@ -63,6 +63,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { View, Select, Star, Delete, Search } from '@element-plus/icons-vue';
 import { ipcRenderer } from 'electron';
+import request from '@/shared/request';
 
 interface HistoryItem {
     id: number;
@@ -107,7 +108,7 @@ const currentDetail = ref<HistoryItem>({
 const loadHistoryList = async () => {
     loading.value = true;
     try {
-        const list = await ipcRenderer.invoke('history-get-list', {
+        const list = await request('history-get-list', {
             pageIndex: 1,
             pageSize: 100,
             themeId: props.themeId,
@@ -130,7 +131,7 @@ const handleSearch = () => {
 // 查看历史记录详情
 const handleViewDetail = async (row: HistoryItem) => {
     try {
-        const detail = await ipcRenderer.invoke('history-get-detail', { id: row.id });
+        const detail = await request('history-get-detail', { id: row.id });
         currentDetail.value = detail;
         detailVisible.value = true;
     } catch (error) {
@@ -147,7 +148,7 @@ const handleApply = (row: HistoryItem) => {
 // 标记为最佳记录
 const handleMarkBest = async (row: HistoryItem) => {
     try {
-        await ipcRenderer.invoke('history-mark-best', {
+        await request('history-mark-best', {
             id: row.id,
             isBest: !row.isBest,
         });
@@ -164,7 +165,7 @@ const handleDelete = async (row: HistoryItem) => {
         await ElMessageBox.confirm('确认删除该历史记录？', '提示', {
             type: 'warning',
         });
-        await ipcRenderer.invoke('history-delete', { id: row.id });
+        await request('history-delete', { id: row.id });
         await loadHistoryList();
         ElMessage.success('删除成功');
     } catch (error) {
@@ -178,17 +179,4 @@ const handleDelete = async (row: HistoryItem) => {
 const handleClose = () => {
     emit('update:modelValue', false);
 };
-
-// 加载历史记录
-defineExpose({
-    loadHistoryList,
-});
-
-// 监听弹窗显示状态
-defineExpose({
-    showDialog: () => {
-        dialogVisible.value = true;
-        loadHistoryList();
-    },
-});
 </script>
