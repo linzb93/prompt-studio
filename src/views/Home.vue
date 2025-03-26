@@ -107,7 +107,7 @@ const handleDetail = (theme: Theme) => {
 // 删除主题
 const handleDelete = async (theme: Theme) => {
     try {
-        await ElMessageBox.confirm('确定要删除这个主题吗？', '删除确认', {
+        await ElMessageBox.confirm('确定要删除这个主题吗？', '温馨提醒', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning',
@@ -131,7 +131,7 @@ const handleMore = (theme: Theme, cmd: string) => {
 };
 // 弹出element-plus的输入框
 const handleRename = (theme: Theme) => {
-    ElMessageBox.prompt('请输入新的主题名称', '重命名主题', {
+    ElMessageBox.prompt('请输入新的主题名称', '温馨提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputValue: theme.name,

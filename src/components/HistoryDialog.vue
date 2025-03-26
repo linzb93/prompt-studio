@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :model-value="modelValue" title="历史记录" width="700px" :before-close="handleClose">
+    <el-dialog :model-value="modelValue" title="历史记录" width="760px" :before-close="handleClose">
         <div>
             <!-- 搜索栏 -->
             <div>
@@ -11,74 +11,79 @@
             </div>
 
             <!-- 历史记录列表 -->
-            <el-table :data="historyList" style="flex: 1" v-loading="loading" class="mt30">
-                <el-table-column prop="title" label="标题">
-                    <template #default="{ row }">
-                        <div class="flex items-center gap-2">
-                            {{ row.title }}
-                            <el-tag v-if="row.isBest" type="success" size="small" effect="plain">最佳</el-tag>
+            <div class="history-list flex flex-wrap mt20">
+                <el-card v-for="history in historyList" :key="history.id" class="history-card">
+                    <div class="card-header flexalign-center">
+                        <div class="flexitem-1">
+                            <h3 class="history-title">{{ history.title }}</h3>
                         </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="createTime" label="创建时间" width="180" />
-                <el-table-column label="操作" width="260" fixed="right">
-                    <template #default="{ row }">
-                        <el-button-group>
-                            <el-button type="primary" :icon="View" @click="handleViewDetail(row)" />
-                            <el-button type="success" :icon="Select" @click="handleApply(row)" />
-                            <el-button
-                                :type="row.isBest ? 'warning' : 'info'"
-                                :icon="Star"
-                                @click="handleMarkBest(row)"
-                            />
-                            <el-button type="danger" :icon="Delete" @click="handleDelete(row)" />
-                        </el-button-group>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-
-        <!-- 历史记录详情弹窗 -->
-        <el-dialog v-model="detailVisible" title="历史记录详情" width="60%" append-to-body>
-            <div>
-                <div>
-                    <div class="label">标题</div>
-                    <div class="text-content">{{ currentDetail.title }}</div>
-                </div>
-                <div>
-                    <div class="label">选择的模型</div>
-                    <div class="text-content">{{ currentDetail.title || '未指定' }}</div>
-                </div>
-                <div>
-                    <div class="label">系统提示词</div>
-                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.systemPrompt }}</div>
-                </div>
-                <div>
-                    <div class="label">用户提示词</div>
-                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.userPrompt }}</div>
-                </div>
-                <div>
-                    <div class="label">AI响应</div>
-                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.aiResponse }}</div>
-                </div>
+                        <div class="action-buttons">
+                            <el-icon class="curp" title="查看详情" @click="handleViewDetail(history)"><View /></el-icon>
+                            <el-icon class="curp ml5" title="应用" @click="handleApply(history)"><Select /></el-icon>
+                            <el-dropdown
+                                class="ml5"
+                                trigger="hover"
+                                @command="(cmd:string) => handleMore(history, cmd)"
+                            >
+                                <el-icon title="查看更多" class="curp"><More /></el-icon>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item command="markBest">标记为最佳</el-dropdown-item>
+                                        <el-dropdown-item command="delete">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
+                    </div>
+                    <div class="create-time">创建时间：{{ history.createTime }}</div>
+                    <div class="system-prompt">系统提示词：{{ history.systemPrompt }}</div>
+                    <div class="user-prompt">用户提示词：{{ history.userPrompt }}</div>
+                </el-card>
             </div>
-        </el-dialog>
-        <!-- 在表格后添加分页组件 -->
-        <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :total="total"
-            layout="total, sizes, prev, pager, next"
-            @current-change="handlePageChange"
-            class="mt10 flexpack-end"
-        />
+        </div>
+        <template #footer>
+            <!-- 在表格后添加分页组件 -->
+            <el-pagination
+                background
+                v-model:current-page="currentPage"
+                v-model:page-size="pageSize"
+                :total="total"
+                layout="prev, pager, next, jumper"
+                @current-change="handlePageChange"
+            />
+        </template>
+    </el-dialog>
+    <!-- 历史记录详情弹窗 -->
+    <el-dialog v-model="detailVisible" title="历史记录详情" width="60%" append-to-body>
+        <div>
+            <div>
+                <div class="label">标题</div>
+                <div class="text-content">{{ currentDetail.title }}</div>
+            </div>
+            <div>
+                <div class="label">选择的模型</div>
+                <div class="text-content">{{ currentDetail.title || '未指定' }}</div>
+            </div>
+            <div>
+                <div class="label">系统提示词</div>
+                <div class="text-content whitespace-pre-wrap">{{ currentDetail.systemPrompt }}</div>
+            </div>
+            <div>
+                <div class="label">用户提示词</div>
+                <div class="text-content whitespace-pre-wrap">{{ currentDetail.userPrompt }}</div>
+            </div>
+            <div>
+                <div class="label">AI响应</div>
+                <div class="text-content whitespace-pre-wrap">{{ currentDetail.aiResponse }}</div>
+            </div>
+        </div>
     </el-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { View, Select, Star, Delete, Search } from '@element-plus/icons-vue';
+import { View, Select, Star, Delete, Search, More } from '@element-plus/icons-vue';
 import request from '@/shared/request';
 import { useRouter } from 'vue-router';
 
@@ -186,6 +191,16 @@ const handleApply = async (row: HistoryItem) => {
     });
 };
 
+const handleMore = async (row: HistoryItem, cmd: string) => {
+    if (cmd === 'markBest') {
+        // 处理历史记录
+        handleMarkBest(row);
+    } else if (cmd === 'delete') {
+        // 处理重命名
+        handleDelete(row);
+    }
+};
+
 // 标记为最佳记录
 const handleMarkBest = async (row: HistoryItem) => {
     try {
@@ -224,6 +239,7 @@ const handleClose = () => {
 };
 </script>
 <style scoped lang="scss">
+@import '../styles/mixin.scss';
 .label {
     font-weight: bold;
     margin-bottom: 5px;
@@ -234,5 +250,34 @@ const handleClose = () => {
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f9f9f9;
+}
+.history-card {
+    margin-bottom: 10px;
+    margin-right: 20px;
+    margin-top: 0;
+    width: 353px;
+    &:nth-child(2n) {
+        margin-right: 0;
+    }
+}
+.history-title {
+    @include textOverflow;
+    width: 220px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.create-time {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 10px;
+}
+.system-prompt,
+.user-prompt {
+    @include textOverflow;
+    margin-bottom: 5px;
+}
+.user-prompt {
+    color: #999;
 }
 </style>
