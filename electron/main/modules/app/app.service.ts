@@ -50,6 +50,8 @@ function setting() {
 async function createWindow() {
     win = new BrowserWindow({
         title: 'Prompt Studio',
+        width: 1200,
+        height: 800,
         webPreferences: {
             spellcheck: false,
             preload,

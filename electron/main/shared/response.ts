@@ -1,10 +1,11 @@
 import { HTTP_STATUS } from '../enums/index.enum';
+import { omit } from 'lodash';
 export default async (callback: Function) => {
     try {
         const result = await callback();
         return {
-            code: HTTP_STATUS.SUCCESS,
-            result,
+            code: (result && result.code) || HTTP_STATUS.SUCCESS,
+            result: Array.isArray(result) ? result : omit(result, ['code']),
         };
     } catch (error) {
         return {

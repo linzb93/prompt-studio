@@ -42,8 +42,11 @@ export default async function sql<R>(callback: (data: StoredDataType) => R) {
         }
         const storedData = await fs.readJSON(filePath);
         const result = await callback(storedData);
-        await fs.writeJSON(filePath, storedData, { spaces: 2 });
-        return result;
+        if (!result) {
+            await fs.writeJSON(filePath, storedData, { spaces: 2 });
+        } else {
+            return result;
+        }
     } catch (error) {
         console.error('Error reading or parsing JSON file:', error);
         throw error;

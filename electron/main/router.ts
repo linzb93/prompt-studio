@@ -29,6 +29,10 @@ export default () => {
         return response(async () => await themeController.getDetail(data));
     });
 
+    ipcMain.handle('theme-rename', (evt, data: string) => {
+        return response(async () => await themeController.rename(data));
+    });
+
     // 模型管理相关接口
     ipcMain.handle('model-create', (evt, data: string) => {
         return response(async () => await modelController.create(data));
@@ -73,5 +77,9 @@ export default () => {
     });
     ipcMain.handle('history-apply', (evt, data: string) => {
         return response(async () => await historyController.applyHistory(data));
+    });
+
+    ipcMain.handle('history-rename', (evt, data: string) => {
+        return response(async () => await historyController.rename(data));
     });
 };

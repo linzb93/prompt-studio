@@ -2,7 +2,6 @@ import sql, { StoredDataType } from '../../shared/sql';
 import dayjs from 'dayjs';
 import { HistoryService } from '../history/history.service';
 import { ThemeOpenAI } from './theme.openai';
-import { type IpcMainInvokeEvent } from 'electron';
 type Theme = StoredDataType['themes'][number];
 type HistoryItem = StoredDataType['historyList'][number];
 
@@ -21,19 +20,24 @@ export class ThemeService {
             db.themes = [...(db.themes || []), theme];
         });
         const aiResponse = await this.themeOpenAI.chat(data.modelId, data.systemPrompt, data.userPrompt);
-        await this.historyService.create({
+        this.historyService.create({
             themeId: id,
             modelId: data.modelId,
             title: data.name,
             systemPrompt: data.systemPrompt,
             userPrompt: data.userPrompt,
             aiResponse: aiResponse,
+            isBest: false,
         });
     }
 
     async update(
         data: Pick<Theme, 'id' | 'name'> & Partial<Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt'>>
     ): Promise<void> {
+        const themeExists = await sql((db) => (db.themes || []).some((t) => t.id === data.id));
+        if (!themeExists) {
+            throw new Error(`Theme with id ${data.id} does not exist`);
+        }
         await sql((db) => {
             const themes = db.themes || [];
             const index = themes.findIndex((t) => t.id === data.id);
@@ -43,13 +47,14 @@ export class ThemeService {
             }
         });
         const aiResponse = await this.themeOpenAI.chat(data.modelId, data.systemPrompt, data.userPrompt);
-        await this.historyService.create({
+        this.historyService.create({
             themeId: data.id,
             modelId: data.modelId,
             title: data.name,
             systemPrompt: data.systemPrompt,
             userPrompt: data.userPrompt,
             aiResponse: aiResponse,
+            isBest: false,
         });
     }
 
@@ -59,6 +64,21 @@ export class ThemeService {
             const historyList = db.historyList || [];
             db.themes = themes.filter((t) => t.id !== data.id);
             db.historyList = historyList.filter((h) => h.themeId !== data.id);
+        });
+    }
+
+    async rename(data: Pick<Theme, 'id' | 'name'>): Promise<void> {
+        const themeExists = await sql((db) => (db.themes || []).some((t) => t.id === data.id));
+        if (!themeExists) {
+            throw new Error(`Theme with id ${data.id} does not exist`);
+        }
+        await sql((db) => {
+            const themes = db.themes || [];
+            const index = themes.findIndex((t) => t.id === data.id);
+            if (index !== -1) {
+                themes[index] = { ...themes[index], name: data.name };
+                db.themes = themes;
+            }
         });
     }
 

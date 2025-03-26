@@ -31,6 +31,13 @@ export class HistoryController {
         const parsedParams = JSON.parse(params);
         await this.historyService.markBest(parsedParams.id, parsedParams.isBest);
     }
+    async rename(params: string) {
+        const parsedParams = JSON.parse(params);
+        await this.historyService.rename({
+            id: parsedParams.id,
+            title: parsedParams.title,
+        });
+    }
 
     async applyHistory(params: string) {
         const parsedParams = JSON.parse(params);

@@ -44,12 +44,8 @@ export class HistoryService {
             }
 
             if (params.keyword) {
-                histories = histories.filter(
-                    (history) =>
-                        history.title.toLowerCase().includes(params.keyword!.toLowerCase()) ||
-                        history.systemPrompt.toLowerCase().includes(params.keyword!.toLowerCase()) ||
-                        history.userPrompt.toLowerCase().includes(params.keyword!.toLowerCase()) ||
-                        history.aiResponse.toLowerCase().includes(params.keyword!.toLowerCase())
+                histories = histories.filter((history) =>
+                    history.title.toLowerCase().includes(params.keyword!.toLowerCase())
                 );
             }
 
@@ -81,6 +77,21 @@ export class HistoryService {
             if (themeIndex !== -1) {
                 themes[themeIndex] = { ...themes[themeIndex], contentId: id };
                 db.themes = themes;
+            }
+        });
+    }
+
+    async rename(data: Pick<History, 'id' | 'title'>): Promise<void> {
+        const historyExists = await sql((db) => (db.historyList || []).some((h) => h.id === data.id));
+        if (!historyExists) {
+            throw new Error(`History with id ${data.id} does not exist`);
+        }
+        await sql((db) => {
+            const history = db.historyList || [];
+            const index = history.findIndex((h) => h.id === data.id);
+            if (index !== -1) {
+                history[index] = { ...history[index], title: data.title };
+                db.historyList = history;
             }
         });
     }

@@ -21,24 +21,30 @@
                     <h3 class="theme-title" @click="handleDetail(theme)">{{ theme.name }}</h3>
                     <div class="action-buttons">
                         <el-icon class="curp" @click="handleEdit(theme)"><Edit /></el-icon>
-
-                        <el-icon class="curp" @click="handleHistory(theme)"><Timer /></el-icon>
-
                         <el-icon class="curp" @click="handleDelete(theme)"><Delete /></el-icon>
+                        <el-dropdown trigger="hover" @command="(cmd:string) => handleMore(theme, cmd)">
+                            <el-icon class="curp"><More /></el-icon>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item command="history"> 历史记录 </el-dropdown-item>
+                                    <el-dropdown-item command="rename"> 重命名 </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
                     </div>
                 </div>
                 <div class="create-time">创建时间：{{ theme.createTime }}</div>
             </el-card>
         </div>
         <!-- 历史记录弹窗 -->
-        <HistoryDialog v-model="historyDialogVisible" :theme-id="currentThemeId" />
+        <history-dialog v-model="historyDialogVisible" :theme-id="currentThemeId" />
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Search, Plus, Edit, Timer, Delete } from '@element-plus/icons-vue';
+import { Search, Plus, Edit, Timer, Delete, More } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
 import HistoryDialog from '@/components/HistoryDialog.vue';
@@ -114,6 +120,42 @@ const handleDelete = async (theme: Theme) => {
             ElMessage.error('删除失败');
         }
     }
+};
+
+const handleMore = (theme: Theme, cmd: string) => {
+    if (cmd === 'history') {
+        handleHistory(theme);
+    } else if (cmd === 'rename') {
+        handleRename(theme);
+    }
+};
+// 弹出element-plus的输入框
+const handleRename = (theme: Theme) => {
+    ElMessageBox.prompt('请输入新的主题名称', '重命名主题', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: theme.name,
+        inputType: 'text',
+        inputValidator: (value: string) => {
+            if (!value) {
+                return '请输入主题名称';
+            }
+            return true;
+        },
+    })
+        .then(({ value }) => {
+            request('theme-rename', { id: theme.id, name: value })
+                .then(() => {
+                    ElMessage.success('重命名成功');
+                    getThemes();
+                })
+                .catch(() => {
+                    ElMessage.error('重命名失败');
+                });
+        })
+        .catch(() => {
+            // 用户取消操作
+        });
 };
 
 onMounted(() => {

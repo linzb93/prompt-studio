@@ -18,6 +18,9 @@ export class ThemeController {
     async getList(data: string): Promise<any> {
         return this.themeService.getList(JSON.parse(data));
     }
+    async rename(data: string): Promise<any> {
+        return this.themeService.rename(JSON.parse(data));
+    }
 
     async getDetail(data: string): Promise<any> {
         return this.themeService.getDetail(JSON.parse(data));

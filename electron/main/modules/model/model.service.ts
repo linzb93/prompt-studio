@@ -1,5 +1,6 @@
 import sql, { StoredDataType } from '../../shared/sql';
 import dayjs from 'dayjs';
+import OpenAI from 'openai';
 
 type Model = StoredDataType['models'][number];
 
@@ -12,12 +13,28 @@ export class ModelService {
             ...data,
             createTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         };
+        try {
+            await this.validateModel(newModel);
+        } catch (error) {
+            return {
+                code: 400,
+                message: (error as Error).message,
+            };
+        }
         await sql((db) => {
             db.models = [...(db.models || []), newModel];
         });
     }
 
     async update(data: Model) {
+        try {
+            await this.validateModel(data);
+        } catch (error) {
+            return {
+                code: 400,
+                message: (error as Error).message,
+            };
+        }
         await sql((db) => {
             db.models = (db.models || []).map((model) => (model.id === data.id ? data : model));
         });
@@ -45,5 +62,35 @@ export class ModelService {
     async getDetail(id: number) {
         const models = await sql((db) => db.models || []);
         return models.find((model) => model.id === id);
+    }
+
+    async validateModel(data: Omit<Model, 'id'>) {
+        if (!data.url) {
+            throw new Error('URL is required');
+        }
+        try {
+            // 使用OpenAI SDK验证模型
+            const openai = new OpenAI({
+                apiKey: data.apiKey,
+                baseURL: data.url,
+            });
+
+            // 发送测试请求
+            const response = await openai.chat.completions.create({
+                model: data.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: '收到消息后回复个句号。',
+                    },
+                ],
+            });
+            console.log('Model validation response:');
+            console.log(response);
+            return response.choices && response.choices.length > 0;
+        } catch (error) {
+            console.error('Model validation failed:', error.message);
+            throw error;
+        }
     }
 }
