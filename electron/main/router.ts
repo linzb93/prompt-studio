@@ -71,4 +71,7 @@ export default () => {
     ipcMain.handle('history-mark-best', (evt, data: string) => {
         return response(async () => await historyController.markBest(data));
     });
+    ipcMain.handle('history-apply', (evt, data: string) => {
+        return response(async () => await historyController.applyHistory(data));
+    });
 };

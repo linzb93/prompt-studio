@@ -37,7 +37,7 @@ export class HistoryService {
         keyword?: string;
     }) {
         return await sql((db) => {
-            let histories = (db.historyList || []).filter((history) => history.themeId === params.themeId);
+            let histories = db.historyList || [];
 
             if (params.modelId) {
                 histories = histories.filter((history) => history.modelId === params.modelId);
@@ -64,9 +64,24 @@ export class HistoryService {
 
     async markBest(id: number, isBest: boolean) {
         await sql((db) => {
-            db.historyList = (db.historyList || []).map((history) =>
-                history.id === id ? { ...history, isBest } : history
-            );
+            db.historyList = (db.historyList || []).map((h) => ({
+                ...h,
+                isBest: h.id === id ? isBest : false,
+            }));
+        });
+    }
+
+    async applyHistory(id: number) {
+        await sql((db) => {
+            const history = (db.historyList || []).find((h) => h.id === id);
+            if (!history) return;
+
+            const themes = db.themes || [];
+            const themeIndex = themes.findIndex((t) => t.id === history.themeId);
+            if (themeIndex !== -1) {
+                themes[themeIndex] = { ...themes[themeIndex], contentId: id };
+                db.themes = themes;
+            }
         });
     }
 }

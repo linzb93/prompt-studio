@@ -1,8 +1,8 @@
 <template>
-    <el-dialog :model-value="modelValue" title="历史记录" width="80%" :before-close="handleClose">
-        <div class="flex flex-col h-[600px]">
+    <el-dialog :model-value="modelValue" title="历史记录" width="700px" :before-close="handleClose">
+        <div>
             <!-- 搜索栏 -->
-            <div class="mb-4">
+            <div>
                 <el-input v-model="keyword" placeholder="搜索历史记录..." class="w-60" @keyup.enter="handleSearch">
                     <template #prefix>
                         <el-icon><Search /></el-icon>
@@ -11,7 +11,7 @@
             </div>
 
             <!-- 历史记录列表 -->
-            <el-table :data="historyList" style="flex: 1" v-loading="loading">
+            <el-table :data="historyList" style="flex: 1" v-loading="loading" class="mt30">
                 <el-table-column prop="title" label="标题">
                     <template #default="{ row }">
                         <div class="flex items-center gap-2">
@@ -21,7 +21,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="createTime" label="创建时间" width="180" />
-                <el-table-column label="操作" width="200" fixed="right">
+                <el-table-column label="操作" width="260" fixed="right">
                     <template #default="{ row }">
                         <el-button-group>
                             <el-button type="primary" :icon="View" @click="handleViewDetail(row)" />
@@ -40,30 +40,47 @@
 
         <!-- 历史记录详情弹窗 -->
         <el-dialog v-model="detailVisible" title="历史记录详情" width="60%" append-to-body>
-            <div class="space-y-4">
+            <div>
                 <div>
-                    <div class="text-sm font-medium text-gray-700 mb-2">系统提示词</div>
-                    <el-input type="textarea" v-model="currentDetail.systemPrompt" rows="4" readonly />
+                    <div class="label">标题</div>
+                    <div class="text-content">{{ currentDetail.title }}</div>
                 </div>
                 <div>
-                    <div class="text-sm font-medium text-gray-700 mb-2">用户提示词</div>
-                    <el-input type="textarea" v-model="currentDetail.userPrompt" rows="4" readonly />
+                    <div class="label">选择的模型</div>
+                    <div class="text-content">{{ currentDetail.title || '未指定' }}</div>
                 </div>
                 <div>
-                    <div class="text-sm font-medium text-gray-700 mb-2">AI响应</div>
-                    <el-input type="textarea" v-model="currentDetail.aiResponse" rows="4" readonly />
+                    <div class="label">系统提示词</div>
+                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.systemPrompt }}</div>
+                </div>
+                <div>
+                    <div class="label">用户提示词</div>
+                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.userPrompt }}</div>
+                </div>
+                <div>
+                    <div class="label">AI响应</div>
+                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.aiResponse }}</div>
                 </div>
             </div>
         </el-dialog>
+        <!-- 在表格后添加分页组件 -->
+        <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+            :total="total"
+            layout="total, sizes, prev, pager, next"
+            @current-change="handlePageChange"
+            class="mt10 flexpack-end"
+        />
     </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { View, Select, Star, Delete, Search } from '@element-plus/icons-vue';
-import { ipcRenderer } from 'electron';
 import request from '@/shared/request';
+import { useRouter } from 'vue-router';
 
 interface HistoryItem {
     id: number;
@@ -76,6 +93,7 @@ interface HistoryItem {
     isBest: boolean;
     createTime: string;
 }
+const router = useRouter();
 
 const props = defineProps<{
     themeId: number;
@@ -87,6 +105,15 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
     (e: 'apply', history: HistoryItem): void;
 }>();
+
+watch(
+    () => props.modelValue,
+    (value) => {
+        if (value) {
+            loadHistoryList();
+        }
+    }
+);
 
 const detailVisible = ref(false);
 const loading = ref(false);
@@ -104,13 +131,17 @@ const currentDetail = ref<HistoryItem>({
     createTime: '',
 });
 
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
+
 // 加载历史记录列表
 const loadHistoryList = async () => {
     loading.value = true;
     try {
         const list = await request('history-get-list', {
-            pageIndex: 1,
-            pageSize: 100,
+            pageIndex: currentPage.value,
+            pageSize: pageSize.value,
             themeId: props.themeId,
             modelId: props.modelId,
             keyword: keyword.value,
@@ -123,8 +154,15 @@ const loadHistoryList = async () => {
     }
 };
 
+// 处理页码变化
+const handlePageChange = (page: number) => {
+    currentPage.value = page;
+    loadHistoryList();
+};
+
 // 搜索历史记录
 const handleSearch = () => {
+    currentPage.value = 1;
     loadHistoryList();
 };
 
@@ -140,9 +178,12 @@ const handleViewDetail = async (row: HistoryItem) => {
 };
 
 // 应用历史记录
-const handleApply = (row: HistoryItem) => {
-    emit('apply', row);
-    emit('update:modelValue', false);
+const handleApply = async (row: HistoryItem) => {
+    await request('history-apply', { id: row.id });
+    ElMessage.success('应用成功');
+    router.push({
+        path: `/theme/${row.themeId}`,
+    });
 };
 
 // 标记为最佳记录
@@ -164,6 +205,8 @@ const handleDelete = async (row: HistoryItem) => {
     try {
         await ElMessageBox.confirm('确认删除该历史记录？', '提示', {
             type: 'warning',
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
         });
         await request('history-delete', { id: row.id });
         await loadHistoryList();
@@ -180,3 +223,16 @@ const handleClose = () => {
     emit('update:modelValue', false);
 };
 </script>
+<style scoped lang="scss">
+.label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.text-content {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+</style>

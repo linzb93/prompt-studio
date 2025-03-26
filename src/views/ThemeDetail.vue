@@ -68,6 +68,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Upload, Position, Back } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import { handleMainPost } from '@/shared/util';
 import request from '@/shared/request';
 import markdown from 'markdown-it';
@@ -120,7 +121,8 @@ const handleModelSelect = (model: any) => {
 const handleSubmit = async () => {
     aiResponse.value = '';
     tempAiText = '';
-    await request('theme-update', themeDetail.value);
+    await request(isCreate ? 'theme-create' : 'theme-update', themeDetail.value);
+    ElMessage.success('提交成功，请等待AI响应...');
 };
 const md = markdown();
 let tempAiText = '';

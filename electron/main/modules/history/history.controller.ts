@@ -7,23 +7,33 @@ export class HistoryController {
         this.historyService = new HistoryService();
     }
 
-    async getList(params: any) {
-        return this.historyService.getList(params);
+    async getList(params: string) {
+        const parsedParams = JSON.parse(params);
+        return this.historyService.getList(parsedParams);
     }
 
-    async getDetail(params: any) {
-        return this.historyService.getDetail(params.id);
+    async getDetail(params: string) {
+        const parsedParams = JSON.parse(params);
+        return this.historyService.getDetail(parsedParams.id);
     }
 
-    async update(params: any) {
-        await this.historyService.update(params);
+    async update(params: string) {
+        const parsedParams = JSON.parse(params);
+        await this.historyService.update(parsedParams);
     }
 
-    async delete(params: any) {
-        await this.historyService.delete(params.id);
+    async delete(params: string) {
+        const parsedParams = JSON.parse(params);
+        await this.historyService.delete(parsedParams.id);
     }
 
-    async markBest(params: any) {
-        await this.historyService.markBest(params.id, params.isBest);
+    async markBest(params: string) {
+        const parsedParams = JSON.parse(params);
+        await this.historyService.markBest(parsedParams.id, parsedParams.isBest);
+    }
+
+    async applyHistory(params: string) {
+        const parsedParams = JSON.parse(params);
+        await this.historyService.applyHistory(parsedParams.id);
     }
 }

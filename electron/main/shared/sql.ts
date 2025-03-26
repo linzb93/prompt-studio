@@ -18,6 +18,7 @@ export interface StoredDataType {
         systemPrompt: string;
         aiResponse: string;
         createTime: string;
+        isBest: boolean;
     }[];
     models: {
         id: number;
