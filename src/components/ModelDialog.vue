@@ -1,9 +1,15 @@
 <template>
     <!-- 主模型管理弹窗 -->
-    <el-dialog :model-value="modelValue" title="模型管理" width="750px" :before-close="handleClose">
-        <el-space fill>
+    <el-dialog
+        :model-value="modelValue"
+        title="模型管理"
+        width="750px"
+        :close-on-click-modal="false"
+        :before-close="handleClose"
+    >
+        <el-space fill class="full-width" v-if="!loading">
             <!-- 添加按钮 -->
-            <el-row>
+            <el-row v-if="modelList.length">
                 <el-col>
                     <el-button type="primary" @click="handleAdd">
                         <el-icon><Plus /></el-icon>添加模型
@@ -13,7 +19,7 @@
 
             <!-- 模型列表 -->
             <el-row>
-                <el-radio-group v-model="selectedModel">
+                <el-radio-group v-if="modelList.length" v-model="selectedModel">
                     <el-space direction="vertical" fill>
                         <el-card v-for="model in modelList" :key="model.id">
                             <div class="flexalign-start">
@@ -29,6 +35,11 @@
                         </el-card>
                     </el-space>
                 </el-radio-group>
+                <div class="m-auto" v-else>
+                    <el-empty description="暂无模型">
+                        <el-button type="primary" @click="handleAdd">添加模型</el-button>
+                    </el-empty>
+                </div>
             </el-row>
         </el-space>
         <!-- 底部按钮 -->
@@ -44,6 +55,7 @@
     <el-dialog
         v-if="formDialogVisible"
         v-model="formDialogVisible"
+        :close-on-click-modal="false"
         :title="currentModel ? '编辑模型' : '添加模型'"
         width="400px"
     >
@@ -116,6 +128,7 @@ const formRules = {
     apiKey: [{ required: true, message: '请输入API Key', trigger: 'blur' }],
     url: [
         {
+            //@ts-ignore
             validator: (rule, value, callback) => {
                 if (modelForm.value.platform === 'custom' && !value) {
                     callback(new Error('请输入平台地址'));
@@ -247,7 +260,7 @@ const selectedModel = ref<number>(0);
 // 确认选择
 const handleSelect = () => {
     if (!selectedModel.value) {
-        ElMessage.warning('请选择一个模型');
+        ElMessage.error('请选择一个模型');
         return;
     }
     const model = modelList.value.find((item) => item.id === selectedModel.value);

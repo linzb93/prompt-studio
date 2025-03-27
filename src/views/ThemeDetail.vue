@@ -1,27 +1,22 @@
 <template>
-    <el-container class="h-100vh">
+    <!-- 返回按钮 -->
+    <el-button @click="handleBack" class="back-button">
+        <el-icon><Back /></el-icon>返回首页
+    </el-button>
+    <el-container>
         <el-aside width="50%" class="p-4">
-            <!-- 返回按钮 -->
-            <el-button @click="handleBack" class="back-button">
-                <el-icon><Back /></el-icon>返回首页
-            </el-button>
-            <el-space direction="vertical" fill class="w-100">
-                <!-- 基本信息区 -->
+            <el-space direction="vertical" fill class="full-width">
                 <el-card>
-                    <el-form label-suffix="：">
+                    <el-form label-suffix="：" label-width="100px">
                         <el-form-item label="标题">
                             <el-input v-model="themeDetail.name" placeholder="请输入标题" size="large" />
                         </el-form-item>
                         <el-form-item label="当前模型">
-                            <div class="flexitem-1">{{ selectedModelName }}</div>
-                            <el-button type="primary" link @click="handleSelectModel">选择模型</el-button>
+                            <p class="mr5" v-if="selectedModelName !== ''">{{ selectedModelName }}</p>
+                            <el-button type="primary" link @click="handleSelectModel">{{
+                                selectedModelName !== '' ? '更换模型' : '选择模型'
+                            }}</el-button>
                         </el-form-item>
-                    </el-form>
-                </el-card>
-
-                <!-- 提示词编辑区 -->
-                <el-card>
-                    <el-form label-suffix="：">
                         <el-form-item label="系统提示词">
                             <el-input
                                 v-model="themeDetail.systemPrompt"
@@ -41,8 +36,8 @@
                             />
                         </el-form-item>
                         <el-form-item>
-                            <el-button type="primary" @click="handleSubmit" class="w-100">
-                                <el-icon class="mr-2"><Position /></el-icon>提交
+                            <el-button type="primary" @click="handleSubmit" class="btn-submit">
+                                <el-icon class="mr5"><Position /></el-icon>提交
                             </el-button>
                         </el-form-item>
                     </el-form>
@@ -57,7 +52,7 @@
                     <span>AI响应</span>
                 </template>
                 <el-empty v-if="aiResponse === ''" description="AI响应将显示在这里..." />
-                <div v-else v-html="aiResponse"></div>
+                <div v-else class="response-cont" v-html="aiResponse"></div>
             </el-card>
         </el-main>
     </el-container>
@@ -96,15 +91,17 @@ const themeDetail = ref<ThemeDetail>({
     modelId: undefined,
 });
 
-const selectedModelName = ref('未选择');
+const selectedModelName = ref('');
 const aiResponse = ref('');
 const modelDialogVisible = ref(false);
+const md = markdown();
 
 onMounted(async () => {
     if (!isCreate) {
         const detail = await request('theme-get-detail', { id: themeId });
         if (detail) {
             themeDetail.value = detail;
+            aiResponse.value = md.render(detail.aiResponse);
         }
     }
 });
@@ -121,10 +118,9 @@ const handleModelSelect = (model: any) => {
 const handleSubmit = async () => {
     aiResponse.value = '';
     tempAiText = '';
-    await request(isCreate ? 'theme-create' : 'theme-update', themeDetail.value);
     ElMessage.success('提交成功，请等待AI响应...');
+    await request(isCreate ? 'theme-create' : 'theme-update', themeDetail.value);
 };
-const md = markdown();
 let tempAiText = '';
 handleMainPost('theme-chat-chunk', (content: string) => {
     tempAiText += content;
@@ -138,21 +134,51 @@ const handleBack = () => {
 };
 </script>
 
-<style scoped>
-.h-100vh {
-    height: 100vh;
+<style scoped lang="scss">
+.response-cont {
+    :deep(h1) {
+        font-size: 22px;
+        margin-bottom: 10px;
+        line-height: 2;
+        font-weight: bold;
+    }
+    :deep(h2) {
+        font-size: 20px;
+        margin-bottom: 10px;
+        font-weight: bold;
+        line-height: 2;
+    }
+    :deep(h3) {
+        font-size: 16px;
+        margin-bottom: 7px;
+        font-weight: bold;
+        line-height: 2;
+    }
+    :deep(pre) {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-bottom: 7px;
+        margin-top: 7px;
+    }
+    :deep(table) {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ccc;
+        td,
+        th {
+            border: 1px solid #ccc;
+            padding: 4px 5px;
+        }
+    }
 }
-
-.w-100 {
-    width: 100%;
+.btn-submit {
+    width: 200px;
 }
 
 .p-4 {
     padding: 16px;
-}
-
-.mr-2 {
-    margin-right: 8px;
 }
 
 .back-button {
@@ -160,6 +186,7 @@ const handleBack = () => {
     padding: 8px 16px;
     font-size: 14px;
     z-index: 1;
-    margin-bottom: 20px;
+    margin-left: 18px;
+    margin-top: 10px;
 }
 </style>

@@ -2,6 +2,7 @@ import sql, { StoredDataType } from '../../shared/sql';
 import dayjs from 'dayjs';
 import { HistoryService } from '../history/history.service';
 import { ThemeOpenAI } from './theme.openai';
+import { th } from 'element-plus/es/locale';
 type Theme = StoredDataType['themes'][number];
 type HistoryItem = StoredDataType['historyList'][number];
 

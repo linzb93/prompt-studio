@@ -38,11 +38,7 @@ export class HistoryService {
     }) {
         return await sql((db) => {
             let histories = db.historyList || [];
-
-            if (params.modelId) {
-                histories = histories.filter((history) => history.modelId === params.modelId);
-            }
-
+            histories = histories.filter((history) => history.themeId === params.themeId);
             if (params.keyword) {
                 histories = histories.filter((history) =>
                     history.title.toLowerCase().includes(params.keyword!.toLowerCase())

@@ -1,5 +1,11 @@
 <template>
-    <el-dialog :model-value="modelValue" title="历史记录" width="760px" :before-close="handleClose">
+    <el-dialog
+        :model-value="modelValue"
+        title="历史记录"
+        width="760px"
+        :close-on-click-modal="false"
+        :before-close="handleClose"
+    >
         <div>
             <!-- 搜索栏 -->
             <div>
@@ -14,8 +20,11 @@
             <div class="history-list flex flex-wrap mt20">
                 <el-card v-for="history in historyList" :key="history.id" class="history-card">
                     <div class="card-header flexalign-center">
-                        <div class="flexitem-1">
+                        <div class="flexitem-1 title-wrap">
                             <h3 class="history-title">{{ history.title }}</h3>
+                            <el-icon color="#E6A23C" :size="18" class="icon-star" v-if="history.isBest"
+                                ><StarFilled
+                            /></el-icon>
                         </div>
                         <div class="action-buttons">
                             <el-icon class="curp" title="查看详情" @click="handleViewDetail(history)"><View /></el-icon>
@@ -54,7 +63,7 @@
         </template>
     </el-dialog>
     <!-- 历史记录详情弹窗 -->
-    <el-dialog v-model="detailVisible" title="历史记录详情" width="60%" append-to-body>
+    <el-dialog v-model="detailVisible" title="历史记录详情" width="760px">
         <div>
             <div>
                 <div class="label">标题</div>
@@ -83,7 +92,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { View, Select, Star, Delete, Search, More } from '@element-plus/icons-vue';
+import { View, Select, StarFilled, Search, More } from '@element-plus/icons-vue';
 import request from '@/shared/request';
 import { useRouter } from 'vue-router';
 
@@ -148,7 +157,6 @@ const loadHistoryList = async () => {
             pageIndex: currentPage.value,
             pageSize: pageSize.value,
             themeId: props.themeId,
-            modelId: props.modelId,
             keyword: keyword.value,
         });
         historyList.value = list;
@@ -250,6 +258,14 @@ const handleClose = () => {
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f9f9f9;
+}
+.title-wrap {
+    position: relative;
+}
+.icon-star {
+    position: absolute;
+    top: 2px;
+    left: -16px;
 }
 .history-card {
     margin-bottom: 10px;

@@ -1,7 +1,7 @@
 <template>
-    <div class="home-container">
+    <div class="home-container" v-if="loaded">
         <!-- 顶部操作栏 -->
-        <div class="top-bar">
+        <div class="top-bar" v-if="themes.length">
             <el-input
                 v-model="keyword"
                 placeholder="搜索主题..."
@@ -15,13 +15,15 @@
         </div>
 
         <!-- 主题列表 -->
-        <div class="theme-list">
+        <div class="theme-list" v-if="themes.length">
             <el-card v-for="theme in themes" :key="theme.id" class="theme-card">
                 <div class="card-header">
                     <h3 class="theme-title" @click="handleDetail(theme)">{{ theme.name }}</h3>
                     <div class="action-buttons">
-                        <el-icon class="curp" @click="handleEdit(theme)"><Edit /></el-icon>
-                        <el-icon class="curp" @click="handleDelete(theme)"><Delete /></el-icon>
+                        <el-icon title="编辑" class="curp" @click="handleEdit(theme)"><Edit /></el-icon>
+                        <el-icon title="删除" color="#F56C6C" class="curp" @click="handleDelete(theme)"
+                            ><Delete
+                        /></el-icon>
                         <el-dropdown trigger="hover" @command="(cmd:string) => handleMore(theme, cmd)">
                             <el-icon class="curp"><More /></el-icon>
                             <template #dropdown>
@@ -36,13 +38,17 @@
                 <div class="create-time">创建时间：{{ theme.createTime }}</div>
             </el-card>
         </div>
+        <!-- 空状态 -->
+        <el-empty v-else :description="emptyText">
+            <el-button type="primary" @click="handleCreate">添加场景</el-button>
+        </el-empty>
         <!-- 历史记录弹窗 -->
         <history-dialog v-model="historyDialogVisible" :theme-id="currentThemeId" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { Search, Plus, Edit, Timer, Delete, More } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -64,6 +70,8 @@ const themes = ref<Theme[]>([]);
 // 历史记录弹窗
 const historyDialogVisible = ref(false);
 const currentThemeId = ref<number>(0);
+const emptyText = shallowRef('');
+const loaded = shallowRef(false);
 
 // 获取主题列表
 const getThemes = async () => {
@@ -71,7 +79,15 @@ const getThemes = async () => {
         const data = await request('theme-get-list', {
             keyword: keyword.value,
         });
+        loaded.value = true;
         themes.value = data;
+        if (!data.length) {
+            if (keyword.value === '') {
+                emptyText.value = '创建你的第一个主题吧！';
+            } else {
+                emptyText.value = '没有找到相关主题';
+            }
+        }
     } catch (error) {
         console.log(error);
         ElMessage.error('获取主题列表失败');
