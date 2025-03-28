@@ -22,15 +22,6 @@
             </div>
             <div class="history-item">
                 <h3>对比历史记录</h3>
-                <div class="select-container">
-                    <el-select
-                        v-model="compareHistoryId"
-                        placeholder="选择要对比的历史记录"
-                        @change="handleCompareChange"
-                    >
-                        <el-option v-for="item in historyList" :key="item.id" :label="item.title" :value="item.id" />
-                    </el-select>
-                </div>
                 <div class="detail-content" v-if="compareHistory.id">
                     <div class="label">标题</div>
                     <div class="text-content">{{ compareHistory.title }}</div>

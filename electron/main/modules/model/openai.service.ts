@@ -2,9 +2,20 @@ import OpenAI from 'openai';
 import { ModelService } from './model.service';
 import { postRenderer } from '../window/window.service';
 
+/** OpenAI服务类，用于处理与OpenAI API的交互 */
 export class OpenAIService {
+    /** 模型服务实例 */
     private modelService = new ModelService();
 
+    /**
+     * 验证模型配置是否有效
+     * @param data 模型配置数据
+     * @param data.apiKey OpenAI API密钥
+     * @param data.url API基础URL
+     * @param data.model 模型名称
+     * @returns 如果验证成功返回true
+     * @throws 如果验证失败则抛出错误
+     */
     async validateModel(data: { apiKey: string; url: string; model: string }) {
         if (!data.url) {
             throw new Error('URL is required');
@@ -33,6 +44,13 @@ export class OpenAIService {
         }
     }
 
+    /**
+     * 与AI模型进行对话
+     * @param modelId 模型ID
+     * @param systemPrompt 系统提示词
+     * @param userPrompt 用户提示词
+     * @returns 返回AI的回复内容
+     */
     async chat(modelId: number, systemPrompt: string, userPrompt: string) {
         return new Promise<string>(async (resolve) => {
             try {

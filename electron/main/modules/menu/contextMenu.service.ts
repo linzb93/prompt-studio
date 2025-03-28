@@ -1,5 +1,9 @@
 import { type BrowserWindow, Menu } from 'electron';
 import { postRenderer } from '../window/window.service';
+/**
+ * 创建应用程序右键菜单
+ * @param win 浏览器窗口实例
+ */
 export default (win: BrowserWindow) => {
     win.webContents.addListener('context-menu', (_, params) => {
         const rightMenu = Menu.buildFromTemplate([

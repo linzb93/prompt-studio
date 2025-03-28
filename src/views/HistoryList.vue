@@ -37,7 +37,7 @@
                     <div class="action-buttons" v-if="!isCompareMode">
                         <el-icon class="curp" title="查看详情" @click="handleViewDetail(history)"><View /></el-icon>
                         <el-icon class="curp ml5" title="应用" @click="handleApply(history)"><Select /></el-icon>
-                        <el-dropdown class="ml5" trigger="hover" @command="(cmd:string) => handleMore(history, cmd)">
+                        <el-dropdown class="ml5" trigger="hover" @command="(cmd) => handleMore(history, cmd)">
                             <el-icon title="查看更多" class="curp"><More /></el-icon>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -55,16 +55,6 @@
             </el-card>
         </div>
 
-        <!-- 分页组件 -->
-        <el-pagination
-            background
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :total="total"
-            layout="prev, pager, next, jumper"
-            @current-change="handlePageChange"
-        />
-
         <!-- 历史记录详情弹窗 -->
         <el-dialog v-model="detailVisible" title="历史记录详情" width="760px">
             <div>
@@ -74,7 +64,7 @@
                 </div>
                 <div>
                     <div class="label">选择的模型</div>
-                    <div class="text-content">{{ currentDetail.title || '未指定' }}</div>
+                    <div class="text-content">{{ currentDetail.modelName }}</div>
                 </div>
                 <div>
                     <div class="label">系统提示词</div>
@@ -110,6 +100,7 @@ interface HistoryItem {
     aiResponse: string;
     isBest: boolean;
     createTime: string;
+    modelName: string;
 }
 
 const router = useRouter();
@@ -130,19 +121,14 @@ const currentDetail = ref<HistoryItem>({
     aiResponse: '',
     isBest: false,
     createTime: '',
+    modelName: '',
 });
-
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
 
 // 加载历史记录列表
 const loadHistoryList = async () => {
     loading.value = true;
     try {
         const list = await request('history-get-list', {
-            pageIndex: currentPage.value,
-            pageSize: pageSize.value,
             themeId: themeId.value,
             keyword: keyword.value,
         });
@@ -154,15 +140,8 @@ const loadHistoryList = async () => {
     }
 };
 
-// 处理页码变化
-const handlePageChange = (page: number) => {
-    currentPage.value = page;
-    loadHistoryList();
-};
-
 // 搜索历史记录
 const handleSearch = () => {
-    currentPage.value = 1;
     loadHistoryList();
 };
 
@@ -204,7 +183,6 @@ const selectOriginItem = (row: HistoryItem) => {
 };
 watch(isCompareMode, (newVal) => {
     if (newVal) {
-        currentPage.value = 1;
         loadHistoryList();
     } else {
         originItem.value = undefined;

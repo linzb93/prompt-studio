@@ -1,6 +1,10 @@
 import { app, shell, type BrowserWindow, Menu, dialog } from 'electron';
 import { root } from '../../enums/index.enum';
 import { postRenderer } from '../window/window.service';
+/**
+ * 创建应用程序菜单
+ * @param win 浏览器窗口实例
+ */
 export default (win: BrowserWindow) => {
     const menu = Menu.buildFromTemplate([
         {
