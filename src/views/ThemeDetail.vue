@@ -80,6 +80,7 @@ interface ThemeDetail {
     systemPrompt?: string;
     userPrompt?: string;
     modelId?: number;
+    modelName?: string;
 }
 
 const themeDetail = ref<ThemeDetail>({
@@ -99,10 +100,9 @@ const md = markdown();
 onMounted(async () => {
     if (!isCreate) {
         const detail = await request('theme-get-detail', { id: themeId });
-        if (detail) {
-            themeDetail.value = detail;
-            aiResponse.value = md.render(detail.aiResponse);
-        }
+        themeDetail.value = detail;
+        aiResponse.value = md.render(detail.aiResponse);
+        selectedModelName.value = detail.modelName;
     }
 });
 

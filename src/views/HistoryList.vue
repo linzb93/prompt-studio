@@ -1,22 +1,28 @@
 <template>
-    <div>
-        <!-- 返回按钮 -->
-        <el-button @click="router.back()" class="back-button">
-            <el-icon><Back /></el-icon>返回上一页
-        </el-button>
-        <!-- 搜索栏 -->
-        <div>
-            <el-input v-model="keyword" placeholder="搜索历史记录..." class="w-60" @keyup.enter="handleSearch">
+    <div class="history-page">
+        <div class="flexalign-center mt10">
+            <!-- 返回按钮 -->
+            <el-button @click="router.back()" class="back-button">
+                <el-icon><Back /></el-icon>返回上一页
+            </el-button>
+            <!-- 搜索栏 -->
+            <el-input
+                v-model="keyword"
+                placeholder="搜索历史记录..."
+                class="ml5"
+                style="width: 320px"
+                @keyup.enter="handleSearch"
+            >
                 <template #prefix>
                     <el-icon><Search /></el-icon>
                 </template>
             </el-input>
         </div>
-        <div class="compare-line dz-flex" v-if="isCompareMode">
+        <div class="compare-line flexalign-center mt10" v-if="isCompareMode">
             <p>
                 请选择与<strong>【{{ originItem?.title }}】</strong>对比的记录
             </p>
-            <el-button type="primary" size="mini" @click="isCompareMode = false">退出对比</el-button>
+            <el-button type="primary" size="small" class="ml10" @click="isCompareMode = false">退出对比</el-button>
         </div>
 
         <!-- 历史记录列表 -->
@@ -25,6 +31,7 @@
                 v-for="history in historyList"
                 :key="history.id"
                 class="history-card"
+                :class="{ curp: isCompareMode }"
                 @click="selectCompareItem(history)"
             >
                 <div class="card-header flexalign-center">
@@ -41,6 +48,7 @@
                             <el-icon title="查看更多" class="curp"><More /></el-icon>
                             <template #dropdown>
                                 <el-dropdown-menu>
+                                    <el-dropdown-item command="rename">重命名</el-dropdown-item>
                                     <el-dropdown-item command="markBest">标记为最佳</el-dropdown-item>
                                     <el-dropdown-item command="delete">删除</el-dropdown-item>
                                     <el-dropdown-item command="compare">历史对比</el-dropdown-item>
@@ -148,7 +156,7 @@ const handleSearch = () => {
 // 查看历史记录详情
 const handleViewDetail = async (row: HistoryItem) => {
     try {
-        const detail = await request('history-get-detail', { id: row.id });
+        const detail = await request('history-get-detail', row);
         currentDetail.value = detail;
         detailVisible.value = true;
     } catch (error) {
@@ -158,7 +166,7 @@ const handleViewDetail = async (row: HistoryItem) => {
 
 // 应用历史记录
 const handleApply = async (row: HistoryItem) => {
-    await request('history-apply', { id: row.id });
+    await request('history-apply', row);
     ElMessage.success('应用成功');
     router.push({
         path: '/theme/detail',
@@ -169,10 +177,32 @@ const handleApply = async (row: HistoryItem) => {
 const handleMore = async (row: HistoryItem, cmd: string) => {
     if (cmd === 'markBest') {
         handleMarkBest(row);
+    } else if (cmd === 'rename') {
+        handleRename(row);
     } else if (cmd === 'delete') {
         handleDelete(row);
     } else if (cmd === 'compare') {
         selectOriginItem(row);
+    }
+};
+const handleRename = async (row: HistoryItem) => {
+    try {
+        const newTitle = await ElMessageBox.prompt('请输入新的标题', '重命名', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            inputValue: row.title,
+        });
+        await request('history-rename', {
+            id: row.id,
+            title: newTitle.value,
+            themeId: row.themeId,
+        });
+        await loadHistoryList();
+        ElMessage.success('重命名成功');
+    } catch (error) {
+        if (error !== 'cancel') {
+            ElMessage.error('重命名失败');
+        }
     }
 };
 const originItem = ref<HistoryItem>();
@@ -192,11 +222,16 @@ const selectCompareItem = (row: HistoryItem) => {
     if (!isCompareMode.value) {
         return;
     }
+    if (originItem.value?.id === row.id) {
+        ElMessage.error('不能与当前记录对比');
+        return;
+    }
     router.push({
         path: '/history/compare',
         query: {
             originId: originItem.value?.id,
             compareId: row.id,
+            themeId: row.themeId,
         },
     });
 };
@@ -206,6 +241,7 @@ const handleMarkBest = async (row: HistoryItem) => {
     try {
         await request('history-mark-best', {
             id: row.id,
+            themeId: row.themeId,
             isBest: !row.isBest,
         });
         await loadHistoryList();
@@ -223,7 +259,7 @@ const handleDelete = async (row: HistoryItem) => {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
         });
-        await request('history-delete', { id: row.id });
+        await request('history-delete', row);
         await loadHistoryList();
         ElMessage.success('删除成功');
     } catch (error) {
@@ -293,7 +329,8 @@ onMounted(() => {
     padding: 8px 16px;
     font-size: 14px;
     z-index: 1;
-    margin-left: 18px;
-    margin-top: 10px;
+}
+.history-page {
+    padding: 20px;
 }
 </style>

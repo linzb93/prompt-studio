@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, readonly } from 'vue';
+import { ref, watch, readonly } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
@@ -251,7 +251,10 @@ const handleSubmit = async () => {
     }
 };
 
-onMounted(() => {
+watch(props, ({ visible }) => {
+    if (!visible) {
+        return;
+    }
     getModelList();
 });
 

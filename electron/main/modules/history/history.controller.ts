@@ -14,7 +14,7 @@ export class HistoryController {
 
     async getDetail(params: string) {
         const parsedParams = JSON.parse(params);
-        return this.historyService.getDetail(parsedParams.id);
+        return this.historyService.getDetail(parsedParams);
     }
 
     async update(params: string) {
@@ -24,23 +24,24 @@ export class HistoryController {
 
     async delete(params: string) {
         const parsedParams = JSON.parse(params);
-        await this.historyService.delete(parsedParams.id);
+        await this.historyService.delete(parsedParams);
     }
 
     async markBest(params: string) {
         const parsedParams = JSON.parse(params);
-        await this.historyService.markBest(parsedParams.id, parsedParams.isBest);
+        await this.historyService.markBest(parsedParams);
     }
     async rename(params: string) {
         const parsedParams = JSON.parse(params);
         await this.historyService.rename({
             id: parsedParams.id,
             title: parsedParams.title,
+            themeId: parsedParams.themeId,
         });
     }
 
     async applyHistory(params: string) {
         const parsedParams = JSON.parse(params);
-        await this.historyService.applyHistory(parsedParams.id);
+        await this.historyService.applyHistory(parsedParams);
     }
 }

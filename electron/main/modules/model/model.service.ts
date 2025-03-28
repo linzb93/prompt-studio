@@ -94,4 +94,11 @@ export class ModelService {
         const models = await sql((db) => db.models || []);
         return models.find((model) => model.id === id);
     }
+    async chat(modelId: number, systemPrompt: string, userPrompt: string) {
+        const model = await this.getDetail(modelId);
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        return await this.openAIService.chat(model, systemPrompt, userPrompt);
+    }
 }

@@ -1,12 +1,11 @@
 import OpenAI from 'openai';
-import { ModelService } from './model.service';
+import { StoredDataType } from '../../shared/sql';
 import { postRenderer } from '../window/window.service';
+
+type Model = StoredDataType['models'][number];
 
 /** OpenAI服务类，用于处理与OpenAI API的交互 */
 export class OpenAIService {
-    /** 模型服务实例 */
-    private modelService = new ModelService();
-
     /**
      * 验证模型配置是否有效
      * @param data 模型配置数据
@@ -51,14 +50,9 @@ export class OpenAIService {
      * @param userPrompt 用户提示词
      * @returns 返回AI的回复内容
      */
-    async chat(modelId: number, systemPrompt: string, userPrompt: string) {
+    async chat(model: Model, systemPrompt: string, userPrompt: string) {
         return new Promise<string>(async (resolve) => {
             try {
-                const model = await this.modelService.getDetail(modelId);
-                if (!model) {
-                    throw new Error('Model not found');
-                }
-
                 const openai = new OpenAI({
                     apiKey: model.apiKey,
                     baseURL: model.url,

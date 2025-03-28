@@ -1,13 +1,18 @@
 import sql, { StoredDataType } from '../../shared/sql';
+import {
+    StoredDataType as HistoryStoredDataType,
+    createHistoryFile,
+    deleteHistoryFile,
+} from '../../shared/sql/history';
 import dayjs from 'dayjs';
 import { HistoryService } from '../history/history.service';
-import { OpenAIService } from '../model/openai.service';
+import { ModelService } from '../model/model.service';
 type Theme = StoredDataType['themes'][number];
-type HistoryItem = StoredDataType['historyList'][number];
+type HistoryItem = HistoryStoredDataType['list'][number];
 
 export class ThemeService {
     private historyService = new HistoryService();
-    private openai = new OpenAIService();
+    private modelService = new ModelService();
 
     async create(
         data: Pick<Theme, 'name'> & Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt'>
@@ -19,7 +24,8 @@ export class ThemeService {
         await sql((db) => {
             db.themes = [...(db.themes || []), theme];
         });
-        const aiResponse = await this.openai.chat(data.modelId, data.systemPrompt, data.userPrompt);
+        const aiResponse = await this.modelService.chat(data.modelId, data.systemPrompt, data.userPrompt);
+        await createHistoryFile(id);
         this.historyService.create({
             themeId: id,
             modelId: data.modelId,
@@ -46,7 +52,7 @@ export class ThemeService {
                 db.themes = themes;
             }
         });
-        const aiResponse = await this.openai.chat(data.modelId, data.systemPrompt, data.userPrompt);
+        const aiResponse = await this.modelService.chat(data.modelId, data.systemPrompt, data.userPrompt);
         this.historyService.create({
             themeId: data.id,
             modelId: data.modelId,
@@ -61,10 +67,9 @@ export class ThemeService {
     async delete(data: Pick<Theme, 'id'>): Promise<void> {
         await sql((db) => {
             const themes = db.themes || [];
-            const historyList = db.historyList || [];
             db.themes = themes.filter((t) => t.id !== data.id);
-            db.historyList = historyList.filter((h) => h.themeId !== data.id);
         });
+        await deleteHistoryFile(data.id);
     }
 
     async rename(data: Pick<Theme, 'id' | 'name'>): Promise<void> {
@@ -100,18 +105,20 @@ export class ThemeService {
                     systemPrompt?: string;
                     userPrompt?: string;
                     aiResponse?: string;
+                    modelName?: string;
                 })
               | null
           )
         | null
     > {
-        return await sql((db) => {
-            const theme = (db.themes || []).find((t) => t.id === data.id);
-            if (!theme) return null;
-            const history = (db.historyList || []).find((h) => h.id === theme.contentId);
-            if (!history) return theme;
-            const { modelId, systemPrompt, userPrompt, aiResponse } = history;
-            return { ...theme, modelId, systemPrompt, userPrompt, aiResponse };
-        });
+        const theme = await sql((db) => (db.themes || []).find((t) => t.id === data.id));
+        if (!theme) return null;
+        const history = await sql.history(theme.id, (db) => (db.list || []).find((h) => h.themeId === theme.id));
+        if (!history) return theme;
+        const { modelId, systemPrompt, userPrompt, aiResponse } = history;
+        const models = await sql((db) => db.models || []);
+        const model = models.find((m) => m.id === modelId);
+        if (!model) return { ...theme, modelId, systemPrompt, userPrompt, aiResponse, modelName: '' };
+        return { ...theme, modelId, systemPrompt, userPrompt, aiResponse, modelName: model.name };
     }
 }

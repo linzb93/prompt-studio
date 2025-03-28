@@ -60,8 +60,9 @@ interface HistoryItem {
 
 const route = useRoute();
 const router = useRouter();
-const currentHistoryId = ref(Number(route.params.id));
-const compareHistoryId = ref(0);
+const currentHistoryId = ref(Number(route.query.originId));
+const compareHistoryId = ref(Number(route.query.compareId));
+const themeId = Number(route.query.themeId);
 
 const currentHistory = ref<HistoryItem>({
     id: 0,
@@ -88,12 +89,17 @@ const compareHistory = ref<HistoryItem>({
 });
 
 const historyList = ref<HistoryItem[]>([]);
-// 加载当前历史记录详情
+/**
+ * 加载当前历史记录和对比历史记录的详情
+ * @async
+ * @returns {Promise<void>}
+ * @throws {Error} 当获取历史记录详情失败时抛出错误
+ */
 const loadCurrentHistory = async () => {
     try {
         const pairs = await Promise.all([
-            request('history-get-detail', { id: currentHistoryId.value }),
-            request('history-get-detail', { id: compareHistoryId.value }),
+            request('history-get-detail', { id: currentHistoryId.value, themeId }),
+            request('history-get-detail', { id: compareHistoryId.value, themeId }),
         ]);
         currentHistory.value = pairs[0];
         compareHistory.value = pairs[1];
@@ -102,7 +108,12 @@ const loadCurrentHistory = async () => {
     }
 };
 
-// 加载历史记录列表
+/**
+ * 加载历史记录列表
+ * @async
+ * @returns {Promise<void>}
+ * @throws {Error} 当加载历史记录列表失败时抛出错误
+ */
 const loadHistoryList = async () => {
     try {
         const list = await request('history-get-list', {
@@ -117,7 +128,13 @@ const loadHistoryList = async () => {
     }
 };
 
-// 处理对比历史记录变化
+/**
+ * 处理对比历史记录变化
+ * @async
+ * @param {number} id - 要对比的历史记录ID
+ * @returns {Promise<void>}
+ * @throws {Error} 当获取历史记录详情失败时抛出错误
+ */
 const handleCompareChange = async (id: number) => {
     try {
         const detail = await request('history-get-detail', { id });
