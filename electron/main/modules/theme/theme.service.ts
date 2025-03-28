@@ -1,14 +1,13 @@
 import sql, { StoredDataType } from '../../shared/sql';
 import dayjs from 'dayjs';
 import { HistoryService } from '../history/history.service';
-import { ThemeOpenAI } from './theme.openai';
-import { th } from 'element-plus/es/locale';
+import { OpenAIService } from '../model/openai.service';
 type Theme = StoredDataType['themes'][number];
 type HistoryItem = StoredDataType['historyList'][number];
 
 export class ThemeService {
     private historyService = new HistoryService();
-    private themeOpenAI = new ThemeOpenAI();
+    private openai = new OpenAIService();
 
     async create(
         data: Pick<Theme, 'name'> & Pick<HistoryItem, 'modelId' | 'systemPrompt' | 'userPrompt'>
@@ -20,7 +19,7 @@ export class ThemeService {
         await sql((db) => {
             db.themes = [...(db.themes || []), theme];
         });
-        const aiResponse = await this.themeOpenAI.chat(data.modelId, data.systemPrompt, data.userPrompt);
+        const aiResponse = await this.openai.chat(data.modelId, data.systemPrompt, data.userPrompt);
         this.historyService.create({
             themeId: id,
             modelId: data.modelId,
@@ -47,7 +46,7 @@ export class ThemeService {
                 db.themes = themes;
             }
         });
-        const aiResponse = await this.themeOpenAI.chat(data.modelId, data.systemPrompt, data.userPrompt);
+        const aiResponse = await this.openai.chat(data.modelId, data.systemPrompt, data.userPrompt);
         this.historyService.create({
             themeId: data.id,
             modelId: data.modelId,

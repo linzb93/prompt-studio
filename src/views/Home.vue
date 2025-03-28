@@ -18,7 +18,7 @@
         <div class="theme-list" v-if="themes.length">
             <el-card v-for="theme in themes" :key="theme.id" class="theme-card">
                 <div class="card-header">
-                    <h3 class="theme-title" @click="handleDetail(theme)">{{ theme.name }}</h3>
+                    <h3 class="theme-title">{{ theme.name }}</h3>
                     <div class="action-buttons">
                         <el-icon title="编辑" class="curp" @click="handleEdit(theme)"><Edit /></el-icon>
                         <el-icon title="删除" color="#F56C6C" class="curp" @click="handleDelete(theme)"
@@ -42,8 +42,6 @@
         <el-empty v-else :description="emptyText">
             <el-button type="primary" @click="handleCreate">添加场景</el-button>
         </el-empty>
-        <!-- 历史记录弹窗 -->
-        <history-dialog v-model="historyDialogVisible" :theme-id="currentThemeId" />
     </div>
 </template>
 
@@ -53,7 +51,6 @@ import { useRouter } from 'vue-router';
 import { Search, Plus, Edit, Timer, Delete, More } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
-import HistoryDialog from '@/components/HistoryDialog.vue';
 
 interface Theme {
     id: number;
@@ -67,9 +64,6 @@ const router = useRouter();
 const keyword = ref('');
 const themes = ref<Theme[]>([]);
 
-// 历史记录弹窗
-const historyDialogVisible = ref(false);
-const currentThemeId = ref<number>(0);
 const emptyText = shallowRef('');
 const loaded = shallowRef(false);
 
@@ -106,18 +100,18 @@ const handleCreate = () => {
 
 // 编辑主题
 const handleEdit = (theme: Theme) => {
-    router.push(`/theme/${theme.id}`);
+    router.push({
+        path: '/theme/detail',
+        query: { id: theme.id },
+    });
 };
 
 // 查看历史
 const handleHistory = (theme: Theme) => {
-    currentThemeId.value = theme.id;
-    historyDialogVisible.value = true;
-};
-
-// 查看详情
-const handleDetail = (theme: Theme) => {
-    router.push(`/theme/${theme.id}`);
+    router.push({
+        path: '/theme/history',
+        query: { id: theme.id },
+    });
 };
 
 // 删除主题

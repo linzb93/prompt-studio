@@ -21,11 +21,27 @@ const router = createRouter({
             },
         },
         {
-            path: '/theme/:id',
+            path: '/theme/detail',
             name: 'theme-detail',
             component: () => import('../views/ThemeDetail.vue'),
             meta: {
                 title: '主题详情',
+            },
+        },
+        {
+            path: '/theme/history',
+            name: 'history-list',
+            component: () => import('../views/HistoryList.vue'),
+            meta: {
+                title: '历史记录',
+            },
+        },
+        {
+            path: '/history/compare',
+            name: 'history-compare',
+            component: () => import('../views/HistoryCompare.vue'),
+            meta: {
+                title: '历史记录对比',
             },
         },
     ],

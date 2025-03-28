@@ -1,8 +1,37 @@
 import OpenAI from 'openai';
-import { ModelService } from '../model/model.service';
+import { ModelService } from './model.service';
 import { postRenderer } from '../window/window.service';
-export class ThemeOpenAI {
+
+export class OpenAIService {
     private modelService = new ModelService();
+
+    async validateModel(data: { apiKey: string; url: string; model: string }) {
+        if (!data.url) {
+            throw new Error('URL is required');
+        }
+        try {
+            const openai = new OpenAI({
+                apiKey: data.apiKey,
+                baseURL: data.url,
+            });
+
+            const response = await openai.chat.completions.create({
+                model: data.model,
+                messages: [
+                    {
+                        role: 'user',
+                        content: '收到消息后回复个句号。',
+                    },
+                ],
+            });
+            console.log('Model validation response:');
+            console.log(response);
+            return response.choices && response.choices.length > 0;
+        } catch (error) {
+            console.error('Model validation failed:', error.message);
+            throw error;
+        }
+    }
 
     async chat(modelId: number, systemPrompt: string, userPrompt: string) {
         return new Promise<string>(async (resolve) => {

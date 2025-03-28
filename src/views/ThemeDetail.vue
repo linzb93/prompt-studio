@@ -71,7 +71,7 @@ import ModelDialog from '@/components/ModelDialog.vue';
 
 const route = useRoute();
 const isCreate = route.name === 'theme-create';
-const themeId = isCreate ? 0 : Number(route.params.id);
+const themeId = isCreate ? 0 : Number(route.query.id);
 
 interface ThemeDetail {
     id: number;
