@@ -34,8 +34,6 @@ export class OpenAIService {
                     },
                 ],
             });
-            console.log('Model validation response:');
-            console.log(response);
             return response.choices && response.choices.length > 0;
         } catch (error) {
             console.error('Model validation failed:', error.message);
@@ -79,7 +77,6 @@ export class OpenAIService {
                 resolve(contents);
             } catch (error) {
                 postRenderer('theme-chat-error', error.message);
-                console.log(error.message);
             }
         });
     }

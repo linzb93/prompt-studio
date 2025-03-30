@@ -56,10 +56,6 @@ export default () => {
 
     // 历史记录相关接口
 
-    ipcMain.handle('history-update', (evt, data: string) => {
-        return response(async () => await historyController.update(data));
-    });
-
     ipcMain.handle('history-delete', (evt, data: string) => {
         return response(async () => await historyController.delete(data));
     });

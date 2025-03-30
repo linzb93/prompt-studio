@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref, onMounted, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
-import { Search, Plus, Edit, Timer, Delete, More } from '@element-plus/icons-vue';
+import { Search, Plus, Edit, Delete, More } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
 

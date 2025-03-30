@@ -3,9 +3,10 @@
     <el-dialog
         :model-value="modelValue"
         title="模型管理"
-        width="750px"
+        width="780px"
         :close-on-click-modal="false"
         :before-close="handleClose"
+        @closed="closed"
     >
         <el-space fill class="full-width" v-if="!loading">
             <!-- 添加按钮 -->
@@ -20,11 +21,11 @@
             <!-- 模型列表 -->
             <el-row>
                 <el-radio-group v-if="modelList.length" v-model="selectedModel">
-                    <el-space direction="vertical" fill>
+                    <div class="flexalign-center flex-wrap">
                         <el-card v-for="model in modelList" :key="model.id">
                             <div class="flexalign-start">
                                 <div class="flexitem-1">
-                                    <el-radio :label="model.id" class="title">{{ model.name }}</el-radio>
+                                    <el-radio :value="model.id" class="title">{{ model.name }}</el-radio>
                                 </div>
                                 <el-button-group>
                                     <el-button type="primary" @click="handleEdit(model)">编辑</el-button>
@@ -33,7 +34,7 @@
                             </div>
                             <el-text type="info" class="url">{{ model.url }}</el-text>
                         </el-card>
-                    </el-space>
+                    </div>
                 </el-radio-group>
                 <div class="m-auto" v-else>
                     <el-empty description="暂无模型">
@@ -44,7 +45,7 @@
         </el-space>
         <!-- 底部按钮 -->
         <template #footer>
-            <el-col class="text-right">
+            <el-col class="text-right" v-if="modelList.length">
                 <el-button @click="handleClose">取消</el-button>
                 <el-button type="primary" @click="handleSelect">确定</el-button>
             </el-col>
@@ -108,11 +109,13 @@ interface Model {
 
 const props = defineProps<{
     modelValue: boolean;
+    id: number;
 }>();
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
     (e: 'select', model: Model | undefined): void;
+    (e: 'close'): void;
 }>();
 
 const loading = ref(false);
@@ -160,6 +163,7 @@ const getModelList = async () => {
 // 关闭弹窗
 const handleClose = () => {
     emit('update:modelValue', false);
+    emit('close');
 };
 
 // 添加模型
@@ -204,6 +208,10 @@ const handlePlatformChange = (value: string) => {
 
 // 删除模型
 const handleDelete = async (model: Model) => {
+    if (model.id === props.id) {
+        ElMessage.error('当前模型正在使用，无法删除');
+        return;
+    }
     try {
         await ElMessageBox.confirm('确定要删除这个模型吗？', '删除确认', {
             confirmButtonText: '确定',
@@ -211,6 +219,9 @@ const handleDelete = async (model: Model) => {
             type: 'warning',
         });
         await request('model-delete', { id: model.id });
+        if (selectedModel.value === model.id) {
+            selectedModel.value = 0;
+        }
         ElMessage.success('删除成功');
         getModelList();
     } catch (error) {
@@ -251,11 +262,12 @@ const handleSubmit = async () => {
     }
 };
 
-watch(props, ({ visible }) => {
-    if (!visible) {
+watch(props, ({ modelValue }) => {
+    if (!modelValue) {
         return;
     }
     getModelList();
+    selectedModel.value = props.id;
 });
 
 const selectedModel = ref<number>(0);
@@ -270,16 +282,21 @@ const handleSelect = () => {
     emit('select', model);
     handleClose();
 };
+const closed = () => {
+    selectedModel.value = 0;
+};
 </script>
 <style scoped lang="scss">
-@import '../styles/mixin.scss';
+@import '../styles/mixin';
 .title {
     @include textOverflow;
     font-size: 20px;
     font-weight: bold;
     width: 180px;
+    display: block;
 }
 .el-card {
+    width: 360px;
     margin-bottom: 10px;
     margin-right: 10px;
 }

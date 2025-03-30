@@ -31,7 +31,7 @@ export class ModelService {
             };
         }
         await sql((db) => {
-            db.models = [...(db.models || []), newModel];
+            db.models = [newModel, ...(db.models || [])];
         });
     }
 

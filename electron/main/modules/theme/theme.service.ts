@@ -20,9 +20,9 @@ export class ThemeService {
         const themes = await sql((db) => db.themes || []);
         const id = themes.length > 0 ? Math.max(...themes.map((t) => t.id)) + 1 : 1;
         const createTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
-        const theme: Theme = { id, name: data.name, createTime, contentId: 0 };
+        const theme: Theme = { id, name: data.name, createTime, contentId: 1 };
         await sql((db) => {
-            db.themes = [...(db.themes || []), theme];
+            db.themes = [theme, ...(db.themes || [])];
         });
         const aiResponse = await this.modelService.chat(data.modelId, data.systemPrompt, data.userPrompt);
         await createHistoryFile(id);
@@ -44,16 +44,9 @@ export class ThemeService {
         if (!themeExists) {
             throw new Error(`Theme with id ${data.id} does not exist`);
         }
-        await sql((db) => {
-            const themes = db.themes || [];
-            const index = themes.findIndex((t) => t.id === data.id);
-            if (index !== -1) {
-                themes[index] = { ...themes[index], name: data.name };
-                db.themes = themes;
-            }
-        });
         const aiResponse = await this.modelService.chat(data.modelId, data.systemPrompt, data.userPrompt);
-        this.historyService.create({
+        await createHistoryFile(data.id);
+        const { id } = await this.historyService.create({
             themeId: data.id,
             modelId: data.modelId,
             title: data.name,
@@ -61,6 +54,14 @@ export class ThemeService {
             userPrompt: data.userPrompt,
             aiResponse: aiResponse,
             isBest: false,
+        });
+        await sql((db) => {
+            const themes = db.themes || [];
+            const index = themes.findIndex((t) => t.id === data.id);
+            if (index !== -1) {
+                themes[index] = { ...themes[index], name: data.name, contentId: id };
+                db.themes = themes;
+            }
         });
     }
 
@@ -113,7 +114,7 @@ export class ThemeService {
     > {
         const theme = await sql((db) => (db.themes || []).find((t) => t.id === data.id));
         if (!theme) return null;
-        const history = await sql.history(theme.id, (db) => (db.list || []).find((h) => h.themeId === theme.id));
+        const history = await sql.history(theme.id, (db) => (db.list || []).find((h) => h.id === theme.contentId));
         if (!history) return theme;
         const { modelId, systemPrompt, userPrompt, aiResponse } = history;
         const models = await sql((db) => db.models || []);

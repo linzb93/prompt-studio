@@ -28,7 +28,7 @@ export class HistoryService {
      *   isBest: false
      * });
      */
-    async create(data: Omit<History, 'id' | 'createTime'>) {
+    async create(data: Omit<History, 'id' | 'createTime'>): Promise<{ id: number }> {
         const histories = await sql.history(data.themeId, (db) => db.list || []);
         const id = histories.length > 0 ? Math.max(...histories.map((h) => h.id)) + 1 : 1;
         const newHistory = {
@@ -37,8 +37,9 @@ export class HistoryService {
             createTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         };
         await sql.history(data.themeId, (db) => {
-            db.list = [...(db.list || []), newHistory];
+            db.list = [newHistory, ...(db.list || [])];
         });
+        return { id };
     }
 
     /**
@@ -73,6 +74,18 @@ export class HistoryService {
         await sql.history(themeId, (db) => {
             db.list = (db.list || []).filter((history) => history.id !== id);
         });
+        // 如果删除的历史记录id等于场景的contentId，则将contentId设置为null
+        const matchTheme = (await sql((db) => db.themes || [])).find((t) => t.contentId === id);
+        if (matchTheme && matchTheme.contentId === id) {
+            await sql((db) => {
+                const themes = db.themes || [];
+                const index = themes.findIndex((t) => t.id === matchTheme.id);
+                if (index !== -1) {
+                    themes[index] = { ...themes[index], contentId: null };
+                    db.themes = themes;
+                }
+            });
+        }
     }
 
     /**

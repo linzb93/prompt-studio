@@ -44,7 +44,7 @@
                     <div class="action-buttons" v-if="!isCompareMode">
                         <el-icon class="curp" title="查看详情" @click="handleViewDetail(history)"><View /></el-icon>
                         <el-icon class="curp ml5" title="应用" @click="handleApply(history)"><Select /></el-icon>
-                        <el-dropdown class="ml5" trigger="hover" @command="(cmd) => handleMore(history, cmd)">
+                        <el-dropdown class="ml5" trigger="hover" @command="(cmd: string) => handleMore(history, cmd)">
                             <el-icon title="查看更多" class="curp"><More /></el-icon>
                             <template #dropdown>
                                 <el-dropdown-menu>
@@ -84,7 +84,9 @@
                 </div>
                 <div>
                     <div class="label">AI响应</div>
-                    <div class="text-content whitespace-pre-wrap">{{ currentDetail.aiResponse }}</div>
+                    <div class="text-content whitespace-pre-wrap">
+                        <div class="ai-response-cont" v-html="currentDetail.aiResponse"></div>
+                    </div>
                 </div>
             </div>
         </el-dialog>
@@ -94,6 +96,7 @@
 <script setup lang="ts">
 import { ref, onMounted, shallowRef, watch } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import markdown from 'markdown-it';
 import { View, Select, StarFilled, Search, More, Back } from '@element-plus/icons-vue';
 import request from '@/shared/request';
 import { useRouter, useRoute } from 'vue-router';
@@ -152,12 +155,15 @@ const loadHistoryList = async () => {
 const handleSearch = () => {
     loadHistoryList();
 };
-
+const md = markdown();
 // 查看历史记录详情
 const handleViewDetail = async (row: HistoryItem) => {
     try {
         const detail = await request('history-get-detail', row);
-        currentDetail.value = detail;
+        currentDetail.value = {
+            ...detail,
+            aiResponse: md.render(detail.aiResponse),
+        };
         detailVisible.value = true;
     } catch (error) {
         ElMessage.error('获取历史记录详情失败');
@@ -285,7 +291,7 @@ onMounted(() => {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    background-color: #fdfdfd;
 }
 .title-wrap {
     position: relative;
@@ -300,9 +306,6 @@ onMounted(() => {
     margin-right: 20px;
     margin-top: 0;
     width: 353px;
-    &:nth-child(2n) {
-        margin-right: 0;
-    }
 }
 .history-title {
     @include textOverflow;

@@ -7,17 +7,17 @@
         <el-aside width="50%" class="p-4">
             <el-space direction="vertical" fill class="full-width">
                 <el-card>
-                    <el-form label-suffix="：" label-width="100px">
-                        <el-form-item label="标题">
+                    <el-form label-suffix="：" label-width="110px" :model="themeDetail" :rules="rules" ref="formRef">
+                        <el-form-item label="标题" prop="name">
                             <el-input v-model="themeDetail.name" placeholder="请输入标题" size="large" />
                         </el-form-item>
-                        <el-form-item label="当前模型">
+                        <el-form-item label="当前模型" prop="modelId">
                             <p class="mr5" v-if="selectedModelName !== ''">{{ selectedModelName }}</p>
                             <el-button type="primary" link @click="handleSelectModel">{{
                                 selectedModelName !== '' ? '更换模型' : '选择模型'
                             }}</el-button>
                         </el-form-item>
-                        <el-form-item label="系统提示词">
+                        <el-form-item label="系统提示词" prop="systemPrompt">
                             <el-input
                                 v-model="themeDetail.systemPrompt"
                                 type="textarea"
@@ -26,7 +26,7 @@
                                 placeholder="请输入系统提示词..."
                             />
                         </el-form-item>
-                        <el-form-item label="用户提示词">
+                        <el-form-item label="用户提示词" prop="userPrompt">
                             <el-input
                                 v-model="themeDetail.userPrompt"
                                 type="textarea"
@@ -49,25 +49,26 @@
         <el-main class="p-4 mb30">
             <el-card>
                 <template #header>
-                    <span>AI响应</span>
+                    <span>AI生成</span>
                 </template>
-                <el-empty v-if="aiResponse === ''" description="AI响应将显示在这里..." />
-                <div v-else class="response-cont" v-html="aiResponse"></div>
+                <el-empty v-if="aiResponse === ''" description="AI生成结果将显示在这里..." />
+                <div v-else class="ai-response-cont" v-html="aiResponse"></div>
             </el-card>
         </el-main>
     </el-container>
-    <ModelDialog v-model="modelDialogVisible" @select="handleModelSelect" />
+    <ModelDialog v-model="modelDialogVisible" @select="handleModelSelect" :id="themeDetail.modelId" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Upload, Position, Back } from '@element-plus/icons-vue';
+import { Position, Back } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { handleMainPost } from '@/shared/util';
 import request from '@/shared/request';
 import markdown from 'markdown-it';
 import ModelDialog from '@/components/ModelDialog.vue';
+import type { FormInstance, FormItemRule } from 'element-plus';
 
 const route = useRoute();
 const isCreate = route.name === 'theme-create';
@@ -79,7 +80,7 @@ interface ThemeDetail {
     createTime: string;
     systemPrompt?: string;
     userPrompt?: string;
-    modelId?: number;
+    modelId: number;
     modelName?: string;
 }
 
@@ -89,9 +90,25 @@ const themeDetail = ref<ThemeDetail>({
     createTime: new Date().toISOString(),
     systemPrompt: '',
     userPrompt: '',
-    modelId: undefined,
+    modelId: 0,
 });
 
+const rules = {
+    name: [{ required: true, message: '请输入标题', trigger: 'blur' }],
+    modelId: {
+        validator: (rule: FormItemRule, value: number, callback: any) => {
+            if (value === 0) {
+                callback(new Error('请选择模型'));
+            } else {
+                callback();
+            }
+        },
+    },
+    systemPrompt: [{ required: true, message: '请输入系统提示词', trigger: 'blur' }],
+    userPrompt: [{ required: true, message: '请输入用户提示词', trigger: 'blur' }],
+};
+
+const formRef = ref<FormInstance>();
 const selectedModelName = ref('');
 const aiResponse = ref('');
 const modelDialogVisible = ref(false);
@@ -115,16 +132,23 @@ const handleModelSelect = (model: any) => {
     selectedModelName.value = model.name;
 };
 
-const handleSubmit = async () => {
-    aiResponse.value = '';
-    tempAiText = '';
-    ElMessage.success('提交成功，请等待AI响应...');
-    await request(isCreate ? 'theme-create' : 'theme-update', themeDetail.value);
+const handleSubmit = () => {
+    if (!formRef.value) return;
+
+    formRef.value.validate(async (valid) => {
+        if (valid) {
+            aiResponse.value = '';
+            aiResponseOriginText = '';
+            ElMessage.success('提交成功，请等待AI响应...');
+            await request(isCreate ? 'theme-create' : 'theme-update', themeDetail.value);
+        }
+    });
 };
-let tempAiText = '';
+
+let aiResponseOriginText = '';
 handleMainPost('theme-chat-chunk', (content: string) => {
-    tempAiText += content;
-    aiResponse.value = md.render(tempAiText);
+    aiResponseOriginText += content;
+    aiResponse.value = md.render(aiResponseOriginText);
 });
 
 const router = useRouter();
@@ -135,44 +159,6 @@ const handleBack = () => {
 </script>
 
 <style scoped lang="scss">
-.response-cont {
-    :deep(h1) {
-        font-size: 22px;
-        margin-bottom: 10px;
-        line-height: 2;
-        font-weight: bold;
-    }
-    :deep(h2) {
-        font-size: 20px;
-        margin-bottom: 10px;
-        font-weight: bold;
-        line-height: 2;
-    }
-    :deep(h3) {
-        font-size: 16px;
-        margin-bottom: 7px;
-        font-weight: bold;
-        line-height: 2;
-    }
-    :deep(pre) {
-        background-color: #f5f5f5;
-        padding: 10px;
-        border-radius: 4px;
-        overflow-x: auto;
-        margin-bottom: 7px;
-        margin-top: 7px;
-    }
-    :deep(table) {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid #ccc;
-        td,
-        th {
-            border: 1px solid #ccc;
-            padding: 4px 5px;
-        }
-    }
-}
 .btn-submit {
     width: 200px;
 }

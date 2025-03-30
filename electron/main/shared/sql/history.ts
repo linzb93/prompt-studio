@@ -40,6 +40,7 @@ export default async function sql<R>(id: number, callback: (data: StoredDataType
 
 export const createHistoryFile = async (id: number) => {
     const filePath = path.join(root, 'history', `${id}.json`);
+    if (await fs.pathExists(filePath)) return;
     await fs.writeJSON(
         filePath,
         {
