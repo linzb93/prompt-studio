@@ -24,6 +24,10 @@ export interface StoredDataType {
         bucket: string;
         region: string;
     };
+    attachments: {
+        name: string;
+        url: string;
+    }[];
 }
 
 /**
