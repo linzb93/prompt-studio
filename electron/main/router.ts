@@ -2,10 +2,12 @@ import { ipcMain } from 'electron';
 import { ThemeController } from './modules/theme/theme.controller';
 import { ModelController } from './modules/model/model.controller';
 import { HistoryController } from './modules/history/history.controller';
+import { OSSController } from './modules/setting/setting.controller';
 import response from './shared/response';
 const themeController = new ThemeController();
 const modelController = new ModelController();
 const historyController = new HistoryController();
+const ossController = new OSSController();
 
 export default () => {
     // 主题管理相关接口
@@ -77,5 +79,22 @@ export default () => {
 
     ipcMain.handle('history-rename', (evt, data: string) => {
         return response(async () => await historyController.rename(data));
+    });
+
+    // OSS相关接口
+    ipcMain.handle('oss-add-account', (evt, data: string) => {
+        return response(async () => await ossController.addOSSAccount(data));
+    });
+
+    ipcMain.handle('oss-validate-account', (evt, data: string) => {
+        return response(async () => await ossController.validateAccount(data));
+    });
+
+    ipcMain.handle('oss-upload-file', (evt, data: string) => {
+        return response(async () => await ossController.uploadFile(data));
+    });
+
+    ipcMain.handle('oss-delete-file', (evt, data: string) => {
+        return response(async () => await ossController.deleteFile(data));
     });
 };

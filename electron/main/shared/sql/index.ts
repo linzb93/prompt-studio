@@ -18,6 +18,12 @@ export interface StoredDataType {
         url: string;
         apiKey: string;
     }[];
+    ossAccount: {
+        accessKeyId: string;
+        accessKeySecret: string;
+        bucket: string;
+        region: string;
+    };
 }
 
 /**
