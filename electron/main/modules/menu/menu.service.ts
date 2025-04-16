@@ -20,66 +20,6 @@ export default (win: BrowserWindow) => {
                         });
                     },
                 },
-                {
-                    label: '返回上一级',
-                    accelerator: 'Backspace',
-                    visible: false,
-                    click: () => {
-                        postRenderer('back');
-                    },
-                },
-                {
-                    label: '切换上一个',
-                    accelerator: 'Up',
-                    visible: false,
-                    click: () => {
-                        postRenderer('location', {
-                            isDown: false,
-                        });
-                    },
-                },
-                {
-                    label: '切换下一个',
-                    accelerator: 'Down',
-                    visible: false,
-                    click: () => {
-                        postRenderer('location', {
-                            isDown: true,
-                        });
-                    },
-                },
-                {
-                    label: '打开文件',
-                    accelerator: 'Enter',
-                    visible: false,
-                    click: () => {
-                        postRenderer('enter', {});
-                    },
-                },
-                {
-                    label: '创建目录',
-                    accelerator: 'Ctrl + D',
-                    visible: false,
-                    click: () => {
-                        postRenderer('create-dir');
-                    },
-                },
-                {
-                    label: '复制地址',
-                    accelerator: 'Ctrl + Shift + U',
-                    visible: false,
-                    click: () => {
-                        postRenderer('copy-url');
-                    },
-                },
-                {
-                    label: '复制样式',
-                    accelerator: 'Ctrl + Shift + C',
-                    visible: false,
-                    click: () => {
-                        postRenderer('copy-style');
-                    },
-                },
                 { type: 'separator' },
                 { role: 'quit' },
             ],
