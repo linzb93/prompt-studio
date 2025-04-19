@@ -35,6 +35,7 @@ export default (win: BrowserWindow) => {
                 },
                 { role: 'copy' },
                 { role: 'paste' },
+                { role: 'selectAll' },
             ],
         },
     ]);

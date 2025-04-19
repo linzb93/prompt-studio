@@ -12,12 +12,14 @@ export class AttachmentService {
      * @param {Attachment} attachment 附件信息，包含名称和地址
      * @returns {Promise<void>} 无返回值
      */
-    async addAttachment(attachment: Attachment): Promise<void> {
+    async addAttachment(attachment: Omit<Attachment, 'id'>): Promise<void> {
         await sql((db) => {
             if (!db.attachments) {
                 db.attachments = [];
             }
-            db.attachments.push(attachment);
+            const maxId = db.attachments.length > 0 ? Math.max(...db.attachments.map((a) => a.id)) : 0;
+            const newAttachment = { ...attachment, id: maxId + 1 };
+            db.attachments.push(newAttachment);
         });
     }
 
@@ -31,13 +33,13 @@ export class AttachmentService {
 
     /**
      * 删除指定附件
-     * @param {string} url 附件地址
+     * @param {number} id 附件ID
      * @returns {Promise<void>} 无返回值
      */
-    async deleteAttachment(url: string): Promise<void> {
+    async deleteAttachment(id: number): Promise<void> {
         await sql((db) => {
             if (db.attachments) {
-                db.attachments = db.attachments.filter((item) => item.url !== url);
+                db.attachments = db.attachments.filter((item) => item.id !== id);
             }
         });
     }

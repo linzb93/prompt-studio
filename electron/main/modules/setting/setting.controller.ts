@@ -8,13 +8,9 @@ export class OSSController {
         await this.settingService.createOSSAccount(account);
     }
 
-    async validateAccount(accountJson: string): Promise<boolean> {
-        try {
-            await this.settingService.listBuckets();
-            return true;
-        } catch (error) {
-            return false;
-        }
+    async listBuckets(accountJson: string): Promise<string[]> {
+        const account = JSON.parse(accountJson);
+        return await this.settingService.listBuckets();
     }
 
     async uploadFile(paramsJson: string): Promise<void> {

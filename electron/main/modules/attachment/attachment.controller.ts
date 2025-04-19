@@ -7,8 +7,8 @@ export class AttachmentController {
         return await this.attachmentService.getAttachments();
     }
 
-    async deleteAttachment(urlJson: string): Promise<void> {
-        const { url } = JSON.parse(urlJson);
-        await this.attachmentService.deleteAttachment(url);
+    async deleteAttachment(idJson: string): Promise<void> {
+        const { id } = JSON.parse(idJson);
+        await this.attachmentService.deleteAttachment(id);
     }
 }

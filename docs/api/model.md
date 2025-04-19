@@ -17,7 +17,7 @@
 
 ### 1. 创建模型
 
-**Endpoint:** `/model-create`
+**Endpoint:** `model-create`
 **描述:** 创建新的模型配置
 
 **请求参数:**
@@ -32,7 +32,7 @@
 
 ### 2. 更新模型
 
-**Endpoint:** `/model-update`
+**Endpoint:** `model-update`
 **描述:** 更新现有模型的配置信息
 
 **请求参数:**
@@ -48,7 +48,7 @@
 
 ### 3. 删除模型
 
-**Endpoint:** `/model-delete`
+**Endpoint:** `model-delete`
 **描述:** 删除指定的模型配置
 
 **请求参数:**
@@ -61,7 +61,7 @@
 
 ### 4. 获取模型列表
 
-**Endpoint:** `/model-get-list`
+**Endpoint:** `model-get-list`
 **描述:** 分页查询模型列表，支持关键词搜索
 
 **请求参数:**
@@ -80,7 +80,7 @@
 
 ### 5. 获取模型详情
 
-**Endpoint:** `/model-get-detail`
+**Endpoint:** `model-get-detail`
 **描述:** 获取指定模型的详细信息
 
 **请求参数:**

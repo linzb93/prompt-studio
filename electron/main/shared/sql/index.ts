@@ -25,6 +25,7 @@ export interface StoredDataType {
         region: string;
     };
     attachments: {
+        id: number;
         name: string;
         url: string;
     }[];

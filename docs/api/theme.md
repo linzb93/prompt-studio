@@ -17,7 +17,7 @@
 
 ### 1. 创建主题
 
-**Endpoint:** `/theme-create`
+**Endpoint:** `theme-create`
 **描述:** 创建一个新的主题。
 
 **请求参数:**
@@ -37,7 +37,7 @@
 
 ### 2. 更新主题
 
-**Endpoint:** `/theme-update`
+**Endpoint:** `theme-update`
 **描述:** 更新指定主题的信息。
 
 **请求参数:**
@@ -58,7 +58,7 @@
 
 ### 3. 删除主题
 
-**Endpoint:** `/theme-delete`
+**Endpoint:** `theme-delete`
 **描述:** 删除指定的主题。
 
 **请求参数:**
@@ -75,7 +75,7 @@
 
 ### 4. 获取主题列表
 
-**Endpoint:** `/theme-get-list`
+**Endpoint:** `theme-get-list`
 **描述:** 分页查询主题列表，支持按关键词筛选。
 
 **请求参数:**
@@ -94,7 +94,7 @@
 
 ### 5. 获取主题详情
 
-**Endpoint:** `/theme-get-detail`
+**Endpoint:** `theme-get-detail`
 **描述:** 获取指定主题的详细信息。
 
 **请求参数:**

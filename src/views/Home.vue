@@ -9,9 +9,14 @@
                 :prefix-icon="Search"
                 @keypress.stop.prevent.enter="handleSearch"
             />
-            <el-button type="primary" @click="handleCreate">
-                <el-icon class="mr-2"><Plus /></el-icon>新建主题
-            </el-button>
+            <div class="button-group">
+                <el-button @click="handleOSSSettings">
+                    <el-icon class="mr-2"><Setting /></el-icon>OSS设置
+                </el-button>
+                <el-button type="primary" @click="handleCreate">
+                    <el-icon class="mr-2"><Plus /></el-icon>新建主题
+                </el-button>
+            </div>
         </div>
 
         <!-- 主题列表 -->
@@ -48,7 +53,7 @@
 <script setup lang="ts">
 import { ref, onMounted, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
-import { Search, Plus, Edit, Delete, More } from '@element-plus/icons-vue';
+import { Search, Plus, Edit, Delete, More, Setting } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
 
@@ -59,6 +64,11 @@ interface Theme {
 }
 
 const router = useRouter();
+
+// 跳转到OSS设置页面
+const handleOSSSettings = () => {
+    router.push('/oss/settings');
+};
 
 // 搜索和分页
 const keyword = ref('');
@@ -187,6 +197,11 @@ onMounted(() => {
 
 .search-input {
     max-width: 300px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
 }
 
 .theme-list {

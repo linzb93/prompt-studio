@@ -88,8 +88,8 @@ export default () => {
         return response(async () => await ossController.addOSSAccount(data));
     });
 
-    ipcMain.handle('oss-validate-account', (evt, data: string) => {
-        return response(async () => await ossController.validateAccount(data));
+    ipcMain.handle('oss-list-buckets', (evt, data: string) => {
+        return response(async () => await ossController.listBuckets(data));
     });
 
     ipcMain.handle('oss-upload-file', (evt, data: string) => {

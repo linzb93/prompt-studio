@@ -27,13 +27,56 @@
                             />
                         </el-form-item>
                         <el-form-item label="用户提示词" prop="userPrompt">
-                            <el-input
-                                v-model="themeDetail.userPrompt"
-                                type="textarea"
-                                :rows="4"
-                                resize="none"
-                                placeholder="请输入用户提示词..."
-                            />
+                            <div class="relative full-width">
+                                <el-input
+                                    v-model="themeDetail.userPrompt"
+                                    type="textarea"
+                                    :rows="4"
+                                    class="user-prompt-input"
+                                    resize="none"
+                                    placeholder="请输入用户提示词..."
+                                />
+                                <el-upload
+                                    class="upload-icon"
+                                    action="#"
+                                    :auto-upload="false"
+                                    :on-change="handleUploadChange"
+                                    :limit="1"
+                                >
+                                    <el-icon title="上传文件"><Upload /></el-icon>
+                                </el-upload>
+                            </div>
+                        </el-form-item>
+                        <el-form-item label="附件">
+                            <div v-if="!themeDetail.attachment">
+                                <el-upload
+                                    class="upload-demo"
+                                    action="#"
+                                    :auto-upload="false"
+                                    :on-change="handleUploadChange"
+                                    :limit="1"
+                                >
+                                    <el-button type="primary">点击上传</el-button>
+                                </el-upload>
+                            </div>
+                            <div v-else>
+                                <div v-if="themeDetail.attachment.isImage" class="image-preview">
+                                    <el-image
+                                        :src="themeDetail.attachment.url"
+                                        :fit="'cover'"
+                                        :style="{ width: '50px', height: '50px' }"
+                                    />
+                                    <div class="image-mask">
+                                        <el-button type="primary" circle @click="handleReupload">
+                                            <el-icon><Refresh /></el-icon>
+                                        </el-button>
+                                    </div>
+                                </div>
+                                <div v-else class="file-preview">
+                                    <span class="file-url">{{ themeDetail.attachment.url }}</span>
+                                    <el-button type="primary" link @click="handleReupload">重新上传</el-button>
+                                </div>
+                            </div>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="handleSubmit" class="btn-submit">
@@ -62,7 +105,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Position, Back } from '@element-plus/icons-vue';
+import { Position, Back, Upload, Refresh } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { handleMainPost } from '@/shared/util';
 import request from '@/shared/request';
@@ -79,9 +122,13 @@ interface ThemeDetail {
     name: string;
     createTime: string;
     systemPrompt?: string;
-    userPrompt?: string;
+    userPrompt: string;
     modelId: number;
     modelName?: string;
+    attachment?: {
+        url: string;
+        isImage: boolean;
+    };
 }
 
 const themeDetail = ref<ThemeDetail>({
@@ -91,6 +138,7 @@ const themeDetail = ref<ThemeDetail>({
     systemPrompt: '',
     userPrompt: '',
     modelId: 0,
+    attachment: undefined,
 });
 
 const rules = {
@@ -156,6 +204,25 @@ const router = useRouter();
 const handleBack = () => {
     router.push('/');
 };
+
+const handleUploadChange = async (file: any) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file.raw);
+        const response = await request('oss-upload-file', formData);
+        const url = response.url;
+        const fileName = file.raw.name.toLowerCase();
+        const isImage = /\.(jpg|jpeg|png|gif|webp)$/.test(fileName);
+        themeDetail.value.attachment = { url, isImage };
+        ElMessage.success('文件上传成功');
+    } catch (error) {
+        ElMessage.error('文件上传失败');
+    }
+};
+
+const handleReupload = () => {
+    themeDetail.value.attachment = undefined;
+};
 </script>
 
 <style scoped lang="scss">
@@ -174,5 +241,90 @@ const handleBack = () => {
     z-index: 1;
     margin-left: 18px;
     margin-top: 10px;
+}
+
+.upload-demo {
+    display: flex;
+    align-items: center;
+}
+
+.mr-1 {
+    margin-right: 4px;
+}
+
+.mt-2 {
+    margin-top: 8px;
+}
+
+.relative {
+    position: relative;
+}
+
+.upload-icon {
+    position: absolute;
+    right: 17px;
+    bottom: 5px;
+    cursor: pointer;
+    z-index: 1;
+    line-height: 1;
+
+    :deep(.el-upload) {
+        display: block;
+    }
+
+    .el-icon {
+        font-size: 16px;
+        color: #909399;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #409eff;
+        }
+    }
+}
+
+:deep(.el-textarea__inner) {
+    padding-bottom: 32px;
+}
+.user-prompt-input {
+    :deep(.el-textarea__inner) {
+        margin-bottom: 12px;
+    }
+}
+
+.image-preview {
+    position: relative;
+    display: inline-block;
+
+    .image-mask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .file-url {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 </style>

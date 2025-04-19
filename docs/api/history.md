@@ -22,7 +22,7 @@
 
 ### 1. 删除历史记录
 
-**Endpoint:** `/history-delete`
+**Endpoint:** `history-delete`
 **描述:** 删除指定的历史记录
 
 **请求参数:**
@@ -35,7 +35,7 @@
 
 ### 2. 获取历史记录列表
 
-**Endpoint:** `/history-get-list`
+**Endpoint:** `history-get-list`
 **描述:** 分页查询历史记录列表，支持按主题、模型、关键词和最佳标记筛选
 
 **请求参数:**
@@ -57,7 +57,7 @@
 
 ### 3. 获取历史记录详情
 
-**Endpoint:** `/history-get-detail`
+**Endpoint:** `history-get-detail`
 **描述:** 获取指定历史记录的详细信息
 
 **请求参数:**
@@ -74,7 +74,7 @@
 
 ### 4. 标记最佳记录
 
-**Endpoint:** `/history-mark-best`
+**Endpoint:** `history-mark-best`
 **描述:** 将指定的历史记录标记或取消标记为最佳记录
 
 **请求参数:**

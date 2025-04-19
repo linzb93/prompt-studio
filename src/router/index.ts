@@ -13,6 +13,14 @@ const router = createRouter({
             },
         },
         {
+            path: '/oss/settings',
+            name: 'oss-settings',
+            component: () => import('../views/OSSSettings.vue'),
+            meta: {
+                title: 'OSS设置',
+            },
+        },
+        {
             path: '/theme/create',
             name: 'theme-create',
             component: () => import('../views/ThemeDetail.vue'),
