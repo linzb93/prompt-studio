@@ -3,13 +3,17 @@ import { SettingService } from './oss.service';
 export class OSSController {
     private settingService = new SettingService();
 
-    async addOSSAccount(accountJson: string): Promise<void> {
-        const account = JSON.parse(accountJson);
-        await this.settingService.createOSSAccount(account);
+    async checkConfig(): Promise<boolean> {
+        const account = await this.settingService.getOSSAccount();
+        return !!account?.accessKeyId;
+    }
+
+    async addOSSAccount(data: string): Promise<void> {
+        const { accessKeyId, accessKeySecret, bucket, region } = JSON.parse(data);
+        await this.settingService.createOSSAccount({ accessKeyId, accessKeySecret, bucket, region });
     }
 
     async listBuckets(accountJson: string): Promise<string[]> {
-        const account = JSON.parse(accountJson);
         return await this.settingService.listBuckets();
     }
 

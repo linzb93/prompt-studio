@@ -100,6 +100,10 @@ export default () => {
         return response(async () => await ossController.deleteFile(data));
     });
 
+    ipcMain.handle('oss-check-config', (evt) => {
+        return response(async () => await ossController.checkConfig());
+    });
+
     // 附件管理相关接口
     ipcMain.handle('attachment-get-list', (evt) => {
         return response(async () => await attachmentController.getAttachments());

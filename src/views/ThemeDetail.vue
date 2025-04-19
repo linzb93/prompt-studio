@@ -106,7 +106,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Position, Back, Upload, Refresh } from '@element-plus/icons-vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { handleMainPost } from '@/shared/util';
 import request from '@/shared/request';
 import markdown from 'markdown-it';
@@ -207,6 +207,17 @@ const handleBack = () => {
 
 const handleUploadChange = async (file: any) => {
     try {
+        const ossConfig = await request('oss-get-config');
+        if (!ossConfig || !ossConfig.enabled) {
+            await ElMessageBox.confirm('请先配置OSS信息', '提示', {
+                confirmButtonText: '去配置',
+                cancelButtonText: '取消',
+                type: 'warning',
+            });
+            router.push('/oss-settings');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file.raw);
         const response = await request('oss-upload-file', formData);
@@ -216,7 +227,9 @@ const handleUploadChange = async (file: any) => {
         themeDetail.value.attachment = { url, isImage };
         ElMessage.success('文件上传成功');
     } catch (error) {
-        ElMessage.error('文件上传失败');
+        if (error !== 'cancel') {
+            ElMessage.error('文件上传失败');
+        }
     }
 };
 

@@ -1,5 +1,6 @@
 <template>
     <div class="home-container" v-if="loaded">
+        <settings-drawer v-model:visible="visible" />
         <!-- 顶部操作栏 -->
         <div class="top-bar" v-if="themes.length">
             <el-input
@@ -10,8 +11,8 @@
                 @keypress.stop.prevent.enter="handleSearch"
             />
             <div class="button-group">
-                <el-button @click="handleOSSSettings">
-                    <el-icon class="mr-2"><Setting /></el-icon>OSS设置
+                <el-button @click="handleSettings">
+                    <el-icon class="mr-2"><Setting /></el-icon>设置
                 </el-button>
                 <el-button type="primary" @click="handleCreate">
                     <el-icon class="mr-2"><Plus /></el-icon>新建主题
@@ -52,10 +53,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, shallowRef } from 'vue';
-import { useRouter } from 'vue-router';
+import SettingsDrawer from '@/components/setting/index.vue';
 import { Search, Plus, Edit, Delete, More, Setting } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
+import { useOSSStore } from '@/store/oss';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 interface Theme {
     id: number;
@@ -63,12 +67,18 @@ interface Theme {
     createTime: string;
 }
 
-const router = useRouter();
+const visible = ref(false);
 
-// 跳转到OSS设置页面
-const handleOSSSettings = () => {
-    router.push('/oss/settings');
+// 显示OSS设置抽屉
+const handleSettings = () => {
+    visible.value = true;
 };
+
+defineExpose({
+    showSettings() {
+        visible.value = true;
+    },
+});
 
 // 搜索和分页
 const keyword = ref('');
@@ -180,6 +190,8 @@ const handleRename = (theme: Theme) => {
 
 onMounted(() => {
     getThemes();
+    const ossStore = useOSSStore();
+    ossStore.checkConfig();
 });
 </script>
 

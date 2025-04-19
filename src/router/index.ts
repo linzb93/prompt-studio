@@ -12,14 +12,7 @@ const router = createRouter({
                 title: '主题列表',
             },
         },
-        {
-            path: '/oss/settings',
-            name: 'oss-settings',
-            component: () => import('../views/OSSSettings.vue'),
-            meta: {
-                title: 'OSS设置',
-            },
-        },
+
         {
             path: '/theme/create',
             name: 'theme-create',

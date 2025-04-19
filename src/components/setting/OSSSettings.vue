@@ -1,9 +1,5 @@
 <template>
     <div class="oss-settings-container">
-        <div class="header-section">
-            <el-button @click="router.back()" icon="ArrowLeft">返回首页</el-button>
-            <h2>OSS 设置</h2>
-        </div>
         <el-form :model="form" label-width="220px">
             <el-form-item label="AccessKey ID" required>
                 <el-input v-model="form.accessKeyId" placeholder="请输入AccessKey ID" />
@@ -41,12 +37,9 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { ArrowLeft } from '@element-plus/icons-vue';
 import request from '@/shared/request';
 
-const router = useRouter();
 interface OSSForm {
     accessKeyId: string;
     accessKeySecret: string;
