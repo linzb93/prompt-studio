@@ -1,6 +1,5 @@
 <template>
     <div class="general-settings">
-        <h3>通用设置</h3>
         <el-form label-width="120px">
             <el-form-item label="超时时间">
                 <el-input-number v-model="timeout" :min="5" />

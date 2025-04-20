@@ -38,6 +38,7 @@ export class SettingService {
             accessKeySecret: account.accessKeySecret,
             bucket: account.bucket,
             region: account.region,
+            domain: account.domain,
         });
     }
 
@@ -51,6 +52,8 @@ export class SettingService {
             accessKeyId: account.accessKeyId,
             accessKeySecret: account.accessKeySecret,
             region: account.region,
+            bucket: '',
+            domain: '',
         });
         const result = await client.listBuckets();
         return result.buckets.map((bucket) => bucket.name);
@@ -62,7 +65,14 @@ export class SettingService {
      * @param {string} objectName OSS对象名称
      * @throws {Error} 当OSS账户未配置或上传失败时抛出错误
      */
-    async uploadFile(filePath: string, objectName: string): Promise<void> {
+    async uploadFile(filePath: string): Promise<void> {
+        const account = await this.getOSSAccount();
+        if (!account) throw new Error('OSS account not found');
+
+        const extension = filePath.split('.').pop();
+        const timestamp = new Date().getTime();
+        const objectName = `${account.directory}/${timestamp}.${extension}`;
+
         const client = await this.getOSSClient();
         await client.put(objectName, filePath);
     }

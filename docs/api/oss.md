@@ -6,12 +6,13 @@
 
 包含 OSS 账户的基本配置信息。
 
-| 字段名称        | 类型   | 描述                 | 示例值                   |
-| --------------- | ------ | -------------------- | ------------------------ |
-| accessKeyId     | String | 访问密钥 ID          | "LTAI4XXXXXXXXXXXXXXXXX" |
-| accessKeySecret | String | 访问密钥密码         | "ZXxxxxxxxxxxxxxxxxxxxx" |
-| bucket          | String | OSS 存储桶名称       | "my-bucket"              |
-| region          | String | OSS 存储桶所在的地域 | "oss-cn-hangzhou"        |
+| 字段名称        | 类型   | 描述                 | 示例值                    |
+| --------------- | ------ | -------------------- | ------------------------- |
+| accessKeyId     | String | 访问密钥 ID          | "LTAI4XXXXXXXXXXXXXXXXX"  |
+| accessKeySecret | String | 访问密钥密码         | "ZXxxxxxxxxxxxxxxxxxxxx"  |
+| bucket          | String | OSS 存储桶名称       | "my-bucket"               |
+| region          | String | OSS 存储桶所在的地域 | "oss-cn-hangzhou"         |
+| domain          | String | OSS 访问文件的域名   | "https://oss.example.com" |
 
 ## 接口列表
 
@@ -22,12 +23,9 @@
 
 **请求参数:**
 
-| 参数名称        | 类型   | 是否必填 | 描述                 | 示例值                   |
-| --------------- | ------ | -------- | -------------------- | ------------------------ |
-| accessKeyId     | String | 是       | 访问密钥 ID          | "LTAI4XXXXXXXXXXXXXXXXX" |
-| accessKeySecret | String | 是       | 访问密钥密码         | "ZXxxxxxxxxxxxxxxxxxxxx" |
-| bucket          | String | 是       | OSS 存储桶名称       | "my-bucket"              |
-| region          | String | 是       | OSS 存储桶所在的地域 | "oss-cn-hangzhou"        |
+| 参数名称 | 类型       | 是否必填 | 描述             | 示例值                   |
+| -------- | ---------- | -------- | ---------------- | ------------------------ |
+| -        | OSSAccount | 是       | OSS 账户配置信息 | 参见 OSSAccount 数据结构 |
 
 **返回数据:**
 
@@ -42,10 +40,9 @@
 
 **请求参数:**
 
-| 参数名称   | 类型   | 是否必填 | 描述             | 示例值              |
-| ---------- | ------ | -------- | ---------------- | ------------------- |
-| filePath   | String | 是       | 本地文件路径     | "/path/to/file.jpg" |
-| objectName | String | 是       | OSS 中的对象名称 | "images/file.jpg"   |
+| 参数名称 | 类型   | 是否必填 | 描述         | 示例值              |
+| -------- | ------ | -------- | ------------ | ------------------- |
+| filePath | String | 是       | 本地文件路径 | "/path/to/file.jpg" |
 
 **返回数据:**
 
@@ -75,7 +72,13 @@
 **Endpoint:** `oss-list-buckets`
 **描述:** 获取当前账户下的所有存储桶列表。
 
-**请求参数:** 无
+**请求参数:**
+
+| 参数名称        | 类型   | 是否必填 | 描述                 | 示例值                   |
+| --------------- | ------ | -------- | -------------------- | ------------------------ |
+| accessKeyId     | String | 是       | 访问密钥 ID          | "LTAI4XXXXXXXXXXXXXXXXX" |
+| accessKeySecret | String | 是       | 访问密钥密码         | "ZXxxxxxxxxxxxxxxxxxxxx" |
+| region          | String | 是       | OSS 存储桶所在的地域 | "oss-cn-hangzhou"        |
 
 **返回数据:**
 
@@ -95,3 +98,16 @@
 | 字段名称 | 类型    | 描述               | 示例值 |
 | -------- | ------- | ------------------ | ------ |
 | data     | Boolean | OSS 配置是否已设置 | true   |
+
+### 6. 获取 OSS 配置
+
+**Endpoint:** `oss-get-config`
+**描述:** 获取当前 OSS 账户的完整配置信息。
+
+**请求参数:** 无
+
+**返回数据:**
+
+| 字段名称 | 类型       | 描述             | 示例值                   |
+| -------- | ---------- | ---------------- | ------------------------ |
+| -        | OSSAccount | OSS 账户配置信息 | 参见 OSSAccount 数据结构 |

@@ -9,7 +9,7 @@ export const useOSSStore = defineStore('oss', {
         async checkConfig() {
             try {
                 const res = await request('oss-check-config');
-                this.isConfigured = res;
+                this.isConfigured = res.enabled;
             } catch (error) {
                 this.isConfigured = false;
             }

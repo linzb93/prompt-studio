@@ -104,6 +104,10 @@ export default () => {
         return response(async () => await ossController.checkConfig());
     });
 
+    ipcMain.handle('oss-get-config', (_) => {
+        return response(async () => await ossController.getOSSConfig());
+    });
+
     // 附件管理相关接口
     ipcMain.handle('attachment-get-list', (_) => {
         return response(async () => await attachmentController.getAttachments());

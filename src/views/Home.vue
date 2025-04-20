@@ -1,6 +1,5 @@
 <template>
     <div class="home-container" v-if="loaded">
-        <settings-drawer v-model:visible="visible" />
         <!-- 顶部操作栏 -->
         <div class="top-bar" v-if="themes.length">
             <el-input
@@ -53,7 +52,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, shallowRef } from 'vue';
-import SettingsDrawer from '@/components/setting/index.vue';
 import { Search, Plus, Edit, Delete, More, Setting } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
@@ -66,18 +64,10 @@ interface Theme {
     createTime: string;
 }
 
-const visible = ref(false);
-
 // 显示OSS设置抽屉
 const handleSettings = () => {
-    visible.value = true;
+    router.push('/setting');
 };
-
-defineExpose({
-    showSettings() {
-        visible.value = true;
-    },
-});
 
 // 搜索和分页
 const keyword = ref('');

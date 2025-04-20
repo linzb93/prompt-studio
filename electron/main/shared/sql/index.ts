@@ -23,6 +23,8 @@ export interface StoredDataType {
         accessKeySecret: string;
         bucket: string;
         region: string;
+        domain: string;
+        directory: string;
     };
     attachments: {
         id: number;

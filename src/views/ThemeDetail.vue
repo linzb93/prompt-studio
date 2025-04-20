@@ -40,7 +40,7 @@
                         </el-form-item>
                         <el-form-item label="附件">
                             <div v-if="!themeDetail.attachment">
-                                <template v-if="ossStore.isConfigured">
+                                <div v-if="ossStore.isConfigured" class="flexalign-center">
                                     <el-upload
                                         class="upload-demo"
                                         action="#"
@@ -50,10 +50,10 @@
                                     >
                                         <el-button type="primary">点击上传</el-button>
                                     </el-upload>
-                                    <el-button type="primary" @click="handleOpenAttachmentDialog"
+                                    <el-button type="primary" class="ml10" @click="handleOpenAttachmentDialog"
                                         >从资源库选择</el-button
                                     >
-                                </template>
+                                </div>
 
                                 <el-button v-else type="primary" @click="handleOpenSetting">请设置OSS</el-button>
                             </div>
@@ -99,7 +99,6 @@
     </el-container>
     <ModelDialog v-model="modelDialogVisible" @select="handleModelSelect" :id="themeDetail.modelId" />
     <AttachmentDialog v-model="attachmentDialogVisible" @select="handleAttachmentSelect" />
-    <setting-drawer v-model:visible="settingVisible" menu="oss" />
 </template>
 
 <script setup lang="ts">
@@ -113,7 +112,6 @@ import request from '@/shared/request';
 import markdown from 'markdown-it';
 import ModelDialog from '@/components/ModelDialog.vue';
 import AttachmentDialog from '@/components/AttachmentDialog.vue';
-import SettingDrawer from '@/components/setting/index.vue';
 import type { FormInstance, FormItemRule } from 'element-plus';
 
 const route = useRoute();
@@ -210,12 +208,17 @@ const router = useRouter();
 const handleBack = () => {
     router.push('/');
 };
-
-const handleUploadChange = async (file: any) => {
+interface ElUploadFileItem {
+    raw: {
+        path: string;
+        name: string;
+    };
+}
+const handleUploadChange = async (file: ElUploadFileItem) => {
     try {
-        const formData = new FormData();
-        formData.append('file', file.raw);
-        const response = await request('oss-upload-file', formData);
+        const response = await request('oss-upload-file', {
+            filePath: file.raw.path,
+        });
         const url = response.url;
         const fileName = file.raw.name.toLowerCase();
         const isImage = /\.(jpg|jpeg|png|gif|webp)$/.test(fileName);
@@ -244,7 +247,12 @@ const handleAttachmentSelect = (attachment: any) => {
 };
 
 const handleOpenSetting = () => {
-    settingVisible.value = true;
+    router.push({
+        path: '/setting',
+        query: {
+            type: 'oss',
+        },
+    });
 };
 </script>
 

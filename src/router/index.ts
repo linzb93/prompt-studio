@@ -12,7 +12,11 @@ const router = createRouter({
                 title: '主题列表',
             },
         },
-
+        {
+            path: '/setting',
+            name: 'setting',
+            component: () => import('../views/setting/index.vue'),
+        },
         {
             path: '/theme/create',
             name: 'theme-create',
