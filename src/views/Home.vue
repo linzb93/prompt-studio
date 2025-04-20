@@ -57,7 +57,6 @@ import SettingsDrawer from '@/components/setting/index.vue';
 import { Search, Plus, Edit, Delete, More, Setting } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import request from '@/shared/request';
-import { useOSSStore } from '@/store/oss';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
@@ -190,8 +189,6 @@ const handleRename = (theme: Theme) => {
 
 onMounted(() => {
     getThemes();
-    const ossStore = useOSSStore();
-    ossStore.checkConfig();
 });
 </script>
 

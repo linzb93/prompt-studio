@@ -39,6 +39,7 @@
 import { ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import request from '@/shared/request';
+import { useOSSStore } from '@/store/oss';
 
 interface OSSForm {
     accessKeyId: string;
@@ -94,15 +95,15 @@ const saveSettings = async () => {
 
     saving.value = true;
     try {
-        const data = await request('oss-add-account', {
+        await request('oss-add-account', {
             accessKeyId: form.accessKeyId,
             accessKeySecret: form.accessKeySecret,
             region: form.region,
             bucket: form.bucket,
         });
-        if (data) {
-            ElMessage.success('保存成功');
-        }
+        const ossStore = useOSSStore();
+        ossStore.setConfigured(true);
+        ElMessage.success('保存成功');
     } catch (error) {
         ElMessage.error('保存失败');
     } finally {

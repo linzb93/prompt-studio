@@ -19,17 +19,21 @@ import { ref, shallowRef } from 'vue';
 import GeneralSettings from './GeneralSettings.vue';
 import OSSSettings from './OSSSettings.vue';
 
-defineProps({
+const props = defineProps({
     visible: {
         type: Boolean,
         default: false,
+    },
+    menu: {
+        type: String,
+        default: 'general',
     },
 });
 
 const emit = defineEmits(['close', 'update:visible']);
 
-const activeMenu = ref('general');
-const currentComponent = shallowRef(GeneralSettings);
+const activeMenu = ref(props.menu || 'general');
+const currentComponent = shallowRef(props.menu === 'oss' ? OSSSettings : GeneralSettings);
 
 const handleMenuSelect = (index: string) => {
     activeMenu.value = index;

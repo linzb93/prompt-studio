@@ -46,8 +46,12 @@ export class SettingService {
      * @returns {Promise<string[]>} 存储桶名称列表
      * @throws {Error} 当OSS账户未配置时抛出错误
      */
-    async listBuckets(): Promise<string[]> {
-        const client = await this.getOSSClient();
+    async listBuckets(account?: OSSAccount): Promise<string[]> {
+        const client = new OSS({
+            accessKeyId: account.accessKeyId,
+            accessKeySecret: account.accessKeySecret,
+            region: account.region,
+        });
         const result = await client.listBuckets();
         return result.buckets.map((bucket) => bucket.name);
     }

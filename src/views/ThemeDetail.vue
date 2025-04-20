@@ -36,28 +36,26 @@
                                     resize="none"
                                     placeholder="请输入用户提示词..."
                                 />
-                                <el-upload
-                                    class="upload-icon"
-                                    action="#"
-                                    :auto-upload="false"
-                                    :on-change="handleUploadChange"
-                                    :limit="1"
-                                >
-                                    <el-icon title="上传文件"><Upload /></el-icon>
-                                </el-upload>
                             </div>
                         </el-form-item>
                         <el-form-item label="附件">
                             <div v-if="!themeDetail.attachment">
-                                <el-upload
-                                    class="upload-demo"
-                                    action="#"
-                                    :auto-upload="false"
-                                    :on-change="handleUploadChange"
-                                    :limit="1"
-                                >
-                                    <el-button type="primary">点击上传</el-button>
-                                </el-upload>
+                                <template v-if="ossStore.isConfigured">
+                                    <el-upload
+                                        class="upload-demo"
+                                        action="#"
+                                        :auto-upload="false"
+                                        :on-change="handleUploadChange"
+                                        :limit="1"
+                                    >
+                                        <el-button type="primary">点击上传</el-button>
+                                    </el-upload>
+                                    <el-button type="primary" @click="handleOpenAttachmentDialog"
+                                        >从资源库选择</el-button
+                                    >
+                                </template>
+
+                                <el-button v-else type="primary" @click="handleOpenSetting">请设置OSS</el-button>
                             </div>
                             <div v-else>
                                 <div v-if="themeDetail.attachment.isImage" class="image-preview">
@@ -100,17 +98,22 @@
         </el-main>
     </el-container>
     <ModelDialog v-model="modelDialogVisible" @select="handleModelSelect" :id="themeDetail.modelId" />
+    <AttachmentDialog v-model="attachmentDialogVisible" @select="handleAttachmentSelect" />
+    <setting-drawer v-model:visible="settingVisible" menu="oss" />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Position, Back, Upload, Refresh } from '@element-plus/icons-vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { useOSSStore } from '@/store/oss';
+import { Position, Back, Refresh } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import { handleMainPost } from '@/shared/util';
 import request from '@/shared/request';
 import markdown from 'markdown-it';
 import ModelDialog from '@/components/ModelDialog.vue';
+import AttachmentDialog from '@/components/AttachmentDialog.vue';
+import SettingDrawer from '@/components/setting/index.vue';
 import type { FormInstance, FormItemRule } from 'element-plus';
 
 const route = useRoute();
@@ -160,8 +163,10 @@ const formRef = ref<FormInstance>();
 const selectedModelName = ref('');
 const aiResponse = ref('');
 const modelDialogVisible = ref(false);
+const attachmentDialogVisible = ref(false);
+const settingVisible = ref(false);
 const md = markdown();
-
+const ossStore = useOSSStore();
 onMounted(async () => {
     if (!isCreate) {
         const detail = await request('theme-get-detail', { id: themeId });
@@ -169,6 +174,7 @@ onMounted(async () => {
         aiResponse.value = md.render(detail.aiResponse);
         selectedModelName.value = detail.modelName;
     }
+    ossStore.checkConfig();
 });
 
 const handleSelectModel = () => {
@@ -207,17 +213,6 @@ const handleBack = () => {
 
 const handleUploadChange = async (file: any) => {
     try {
-        const ossConfig = await request('oss-get-config');
-        if (!ossConfig || !ossConfig.enabled) {
-            await ElMessageBox.confirm('请先配置OSS信息', '提示', {
-                confirmButtonText: '去配置',
-                cancelButtonText: '取消',
-                type: 'warning',
-            });
-            router.push('/oss-settings');
-            return;
-        }
-
         const formData = new FormData();
         formData.append('file', file.raw);
         const response = await request('oss-upload-file', formData);
@@ -235,6 +230,21 @@ const handleUploadChange = async (file: any) => {
 
 const handleReupload = () => {
     themeDetail.value.attachment = undefined;
+};
+
+const handleOpenAttachmentDialog = () => {
+    attachmentDialogVisible.value = true;
+};
+
+const handleAttachmentSelect = (attachment: any) => {
+    themeDetail.value.attachment = {
+        url: attachment.url,
+        isImage: /\\.(jpg|jpeg|png|gif|webp)$/.test(attachment.name.toLowerCase()),
+    };
+};
+
+const handleOpenSetting = () => {
+    settingVisible.value = true;
 };
 </script>
 

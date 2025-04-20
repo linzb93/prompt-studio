@@ -43,6 +43,10 @@
                     @current-change="handlePageChange"
                 />
             </el-row>
+            <el-row class="dialog-footer">
+                <el-button @click="handleCancel">取消</el-button>
+                <el-button type="primary" @click="handleConfirm">确定</el-button>
+            </el-row>
         </el-space>
     </el-dialog>
 </template>
@@ -66,6 +70,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void;
     (e: 'close'): void;
+    (e: 'select', attachment: Attachment): void;
 }>();
 
 const loading = ref(false);
@@ -126,6 +131,21 @@ const handlePageChange = (page: number) => {
 const handleClose = () => {
     emit('update:modelValue', false);
     emit('close');
+};
+
+const selectedAttachment = ref<Attachment | null>(null);
+
+const handleConfirm = () => {
+    if (!selectedAttachment.value) {
+        ElMessage.warning('请选择附件');
+        return;
+    }
+    emit('select', selectedAttachment.value);
+    handleClose();
+};
+
+const handleCancel = () => {
+    handleClose();
 };
 
 watch(props, ({ modelValue }) => {
