@@ -1,6 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 // import init from '../../providers/init';
 // import unhandled from 'electron-unhandled';
 import { __dirname } from '../../enums/index.enum';
